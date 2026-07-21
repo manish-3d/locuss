@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Bath, BedDouble, MapPin } from "lucide-react";
 
-import { prisma } from "@/lib/prisma";
+import { getPropertyById } from "@/lib/property";
 
 type PropertyPageProps = {
   params: Promise<{
@@ -12,48 +13,60 @@ type PropertyPageProps = {
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { id } = await params;
 
-  const property = await prisma.property.findUnique({
-    where: {
-      id,
-    },
-  });
+  const property = await getPropertyById(id);
 
   if (!property) {
     notFound();
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <div className="relative h-[500px] overflow-hidden rounded-xl">
+    <main className="mx-auto max-w-7xl px-6 py-12">
+      {/* Image */}
+      <div className="relative h-[500px] overflow-hidden rounded-2xl">
         <Image
           src={property.image}
           alt={property.title}
           fill
           className="object-cover"
+          priority
         />
       </div>
 
-      <h1 className="mt-8 text-5xl font-bold">{property.title}</h1>
-
-      <p className="mt-3 text-xl text-muted-foreground">{property.location}</p>
-
-      <p className="mt-6 text-3xl font-bold text-primary">
-        ₹{property.price.toLocaleString("en-IN")}
-      </p>
-
-      <div className="mt-8 flex gap-10">
+      {/* Content */}
+      <section className="mt-10 space-y-6">
         <div>
-          <strong>{property.bedrooms}</strong> Bedrooms
+          <h1 className="text-5xl font-bold">{property.title}</h1>
+
+          <div className="mt-3 flex items-center gap-2 text-muted-foreground">
+            <MapPin size={18} />
+            {property.location}
+          </div>
         </div>
 
-        <div>
-          <strong>{property.bathrooms}</strong> Bathrooms
-        </div>
-      </div>
+        <h2 className="text-3xl font-bold text-primary">
+          ₹{property.price.toLocaleString("en-IN")}
+        </h2>
 
-      <p className="mt-10 max-w-3xl leading-8 text-muted-foreground">
-        {property.description}
-      </p>
+        <div className="flex gap-8">
+          <div className="flex items-center gap-2">
+            <BedDouble />
+            {property.bedrooms} Bedrooms
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Bath />
+            {property.bathrooms} Bathrooms
+          </div>
+        </div>
+
+        <div className="rounded-xl border p-6">
+          <h3 className="mb-3 text-2xl font-semibold">Description</h3>
+
+          <p className="leading-8 text-muted-foreground">
+            {property.description}
+          </p>
+        </div>
+      </section>
     </main>
   );
 }
