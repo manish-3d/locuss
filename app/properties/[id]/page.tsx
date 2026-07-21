@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
-import { properties } from "@/data/properties";
+import { prisma } from "@/lib/prisma";
 
 type PropertyPageProps = {
   params: Promise<{
@@ -12,7 +12,11 @@ type PropertyPageProps = {
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { id } = await params;
 
-  const property = properties.find((p) => p.id === id);
+  const property = await prisma.property.findUnique({
+    where: {
+      id,
+    },
+  });
 
   if (!property) {
     notFound();
@@ -33,7 +37,9 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
       <p className="mt-3 text-xl text-muted-foreground">{property.location}</p>
 
-      <p className="mt-6 text-3xl font-bold text-primary">{property.price}</p>
+      <p className="mt-6 text-3xl font-bold text-primary">
+        ₹{property.price.toLocaleString("en-IN")}
+      </p>
 
       <div className="mt-8 flex gap-10">
         <div>

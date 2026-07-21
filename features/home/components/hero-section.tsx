@@ -1,8 +1,8 @@
-import SearchBar from "@/components/search-bar";
+import SearchBar from "./search-bar";
 
 export default function HeroSection() {
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col items-center justify-center px-6 text-center">
+    <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col items-center justify-center px-6 py-20 text-center">
       {/* Badge */}
       <span className="rounded-full border px-4 py-1 text-sm font-medium text-muted-foreground">
         AI Powered Real Estate Platform
