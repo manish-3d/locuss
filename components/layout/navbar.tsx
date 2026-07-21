@@ -5,10 +5,10 @@ import { navigationLinks } from "@/constants/navigation";
 
 export default function Navbar() {
   return (
-    <header className="border-b bg-white">
+    <header className="border-b bg-background">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold">
+        <Link href="/" className="text-2xl font-bold tracking-tight">
           Locus
         </Link>
 
@@ -18,7 +18,7 @@ export default function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium transition-colors hover:text-blue-600"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.title}
             </Link>
@@ -27,13 +27,13 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" asChild>
-            <Link href="/login">Login</Link>
-          </Button>
+          <Link href="/login">
+            <Button variant="ghost">Login</Button>
+          </Link>
 
-          <Button asChild>
-            <Link href="/register">Get Started</Link>
-          </Button>
+          <Link href="/register">
+            <Button>Get Started</Button>
+          </Link>
         </div>
       </div>
     </header>
