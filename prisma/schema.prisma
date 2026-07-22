@@ -7,15 +7,255 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
+
+enum UserRole {
+  ADMIN
+  SELLER
+  BROKER
+  BUYER
+}
+
+enum ListingType {
+  SALE
+  RENT
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  VILLA
+  PLOT
+  OFFICE
+  SHOP
+}
+
+enum PropertyStatus {
+  DRAFT
+  PUBLISHED
+  SOLD
+  RENTED
+}
+
+enum InquiryStatus {
+  OPEN
+  CONTACTED
+  CLOSED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+//////////////////////////////////////////////////////
+// USER
+//////////////////////////////////////////////////////
+
+model User {
+  id    String  @id @default(cuid())
+  name  String
+  email String  @unique
+  image String?
+  phone String?
+
+  role UserRole @default(BUYER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties    Property[]     @relation("UserProperties")
+  favorites     Favorite[]
+  reviews       Review[]
+  inquiries     Inquiry[]
+  conversations Conversation[]
+}
+
+//////////////////////////////////////////////////////
+// PROPERTY
+//////////////////////////////////////////////////////
+
 model Property {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
+
   title       String
   description String
-  location    String
-  price       Int
-  bedrooms    Int
-  bathrooms   Int
-  image       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  listingType  ListingType
+  propertyType PropertyType
+  status       PropertyStatus @default(DRAFT)
+
+  price BigInt
+
+  bedrooms  Int
+  bathrooms Int
+  balconies Int?
+
+  area Float
+
+  parking   Int?
+  furnished Boolean @default(false)
+
+  address String
+  city    String
+  state   String
+  country String
+
+  latitude  Float?
+  longitude Float?
+
+  views Int @default(0)
+
+  ownerId String
+  owner   User   @relation("UserProperties", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images        PropertyImage[]
+  amenities     PropertyAmenity[]
+  favorites     Favorite[]
+  reviews       Review[]
+  inquiries     Inquiry[]
+  conversations Conversation[]
+
+  @@index([city])
+  @@index([price])
+  @@index([listingType])
+  @@index([propertyType])
+}
+
+//////////////////////////////////////////////////////
+// PROPERTY IMAGES
+//////////////////////////////////////////////////////
+
+model PropertyImage {
+  id String @id @default(cuid())
+
+  url      String
+  publicId String?
+  order    Int     @default(0)
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+//////////////////////////////////////////////////////
+// AMENITY
+//////////////////////////////////////////////////////
+
+model Amenity {
+  id   String @id @default(cuid())
+  name String @unique
+
+  properties PropertyAmenity[]
+}
+
+//////////////////////////////////////////////////////
+// PROPERTY AMENITY
+//////////////////////////////////////////////////////
+
+model PropertyAmenity {
+  propertyId String
+  amenityId  String
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenity  Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, amenityId])
+}
+
+//////////////////////////////////////////////////////
+// FAVORITE
+//////////////////////////////////////////////////////
+
+model Favorite {
+  userId     String
+  propertyId String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, propertyId])
+}
+
+//////////////////////////////////////////////////////
+// REVIEW
+//////////////////////////////////////////////////////
+
+model Review {
+  id String @id @default(cuid())
+
+  rating  Int
+  comment String
+
+  userId     String
+  propertyId String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+//////////////////////////////////////////////////////
+// INQUIRY
+//////////////////////////////////////////////////////
+
+model Inquiry {
+  id String @id @default(cuid())
+
+  message String
+  status  InquiryStatus @default(OPEN)
+
+  buyerId    String
+  propertyId String
+
+  buyer    User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+//////////////////////////////////////////////////////
+// CONVERSATION
+//////////////////////////////////////////////////////
+
+model Conversation {
+  id String @id @default(cuid())
+
+  userId     String
+  propertyId String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  messages Message[]
+}
+
+//////////////////////////////////////////////////////
+// MESSAGE
+//////////////////////////////////////////////////////
+
+model Message {
+  id String @id @default(cuid())
+
+  role    MessageRole
+  content String
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
