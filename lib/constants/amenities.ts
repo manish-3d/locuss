@@ -1,0 +1,17 @@
+export const AMENITIES = [
+  "Swimming Pool",
+  "Gym",
+  "Garden",
+  "Lift",
+  "Parking",
+  "Power Backup",
+  "24×7 Security",
+  "Club House",
+  "Children's Play Area",
+  "Visitor Parking",
+  "CCTV",
+  "Balcony",
+  "Air Conditioning",
+  "Wi-Fi",
+  "Pet Friendly",
+] as const;

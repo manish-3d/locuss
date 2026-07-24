@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,9 +8,204 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//////////////////////////////////////////////////////
-// ENUMS
-//////////////////////////////////////////////////////
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  phone         String?
+  role          UserRole @default(BUYER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  conversations Conversation[]
+  favorites     Favorite[]
+  inquiries     Inquiry[]
+  properties    Property[]     @relation("UserProperties")
+  reviews       Review[]
+
+  @@map("user")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Property {
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  price        BigInt
+  bedrooms     Int
+  bathrooms    Int
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  address      String
+  area         Float
+  balconies    Int?
+  city         String
+  country      String
+  furnished    Boolean        @default(false)
+  latitude     Float?
+  listingType  ListingType
+  longitude    Float?
+  ownerId      String
+  parking      Int?
+  propertyType PropertyType
+  state        String
+  status       PropertyStatus @default(DRAFT)
+  views        Int            @default(0)
+
+  owner User @relation("UserProperties", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  amenities     PropertyAmenity[]
+  conversations Conversation[]
+  favorites     Favorite[]
+  images        PropertyImage[]
+  inquiries     Inquiry[]
+  reviews       Review[]
+
+  @@index([city])
+  @@index([price])
+  @@index([listingType])
+  @@index([propertyType])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  url        String
+  publicId   String?
+  order      Int      @default(0)
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+}
+
+model Amenity {
+  id   String @id @default(cuid())
+  name String @unique
+
+  properties PropertyAmenity[]
+}
+
+model PropertyAmenity {
+  propertyId String
+  amenityId  String
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenity  Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, amenityId])
+}
+
+model Favorite {
+  userId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@id([userId, propertyId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String
+  userId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Inquiry {
+  id         String        @id @default(cuid())
+  message    String
+  status     InquiryStatus @default(OPEN)
+  buyerId    String
+  propertyId String
+  createdAt  DateTime      @default(now())
+
+  buyer    User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id         String   @id @default(cuid())
+  userId     String
+  propertyId String
+  createdAt  DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  messages Message[]
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  role           MessageRole
+  content        String
+  conversationId String
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
 
 enum UserRole {
   ADMIN
@@ -49,213 +245,4 @@ enum MessageRole {
   USER
   ASSISTANT
   SYSTEM
-}
-
-//////////////////////////////////////////////////////
-// USER
-//////////////////////////////////////////////////////
-
-model User {
-  id    String  @id @default(cuid())
-  name  String
-  email String  @unique
-  image String?
-  phone String?
-
-  role UserRole @default(BUYER)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  properties    Property[]     @relation("UserProperties")
-  favorites     Favorite[]
-  reviews       Review[]
-  inquiries     Inquiry[]
-  conversations Conversation[]
-}
-
-//////////////////////////////////////////////////////
-// PROPERTY
-//////////////////////////////////////////////////////
-
-model Property {
-  id String @id @default(cuid())
-
-  title       String
-  description String
-
-  listingType  ListingType
-  propertyType PropertyType
-  status       PropertyStatus @default(DRAFT)
-
-  price BigInt
-
-  bedrooms  Int
-  bathrooms Int
-  balconies Int?
-
-  area Float
-
-  parking   Int?
-  furnished Boolean @default(false)
-
-  address String
-  city    String
-  state   String
-  country String
-
-  latitude  Float?
-  longitude Float?
-
-  views Int @default(0)
-
-  ownerId String
-  owner   User   @relation("UserProperties", fields: [ownerId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  images        PropertyImage[]
-  amenities     PropertyAmenity[]
-  favorites     Favorite[]
-  reviews       Review[]
-  inquiries     Inquiry[]
-  conversations Conversation[]
-
-  @@index([city])
-  @@index([price])
-  @@index([listingType])
-  @@index([propertyType])
-}
-
-//////////////////////////////////////////////////////
-// PROPERTY IMAGES
-//////////////////////////////////////////////////////
-
-model PropertyImage {
-  id String @id @default(cuid())
-
-  url      String
-  publicId String?
-  order    Int     @default(0)
-
-  propertyId String
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@index([propertyId])
-}
-
-//////////////////////////////////////////////////////
-// AMENITY
-//////////////////////////////////////////////////////
-
-model Amenity {
-  id   String @id @default(cuid())
-  name String @unique
-
-  properties PropertyAmenity[]
-}
-
-//////////////////////////////////////////////////////
-// PROPERTY AMENITY
-//////////////////////////////////////////////////////
-
-model PropertyAmenity {
-  propertyId String
-  amenityId  String
-
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  amenity  Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
-
-  @@id([propertyId, amenityId])
-}
-
-//////////////////////////////////////////////////////
-// FAVORITE
-//////////////////////////////////////////////////////
-
-model Favorite {
-  userId     String
-  propertyId String
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@id([userId, propertyId])
-}
-
-//////////////////////////////////////////////////////
-// REVIEW
-//////////////////////////////////////////////////////
-
-model Review {
-  id String @id @default(cuid())
-
-  rating  Int
-  comment String
-
-  userId     String
-  propertyId String
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-}
-
-//////////////////////////////////////////////////////
-// INQUIRY
-//////////////////////////////////////////////////////
-
-model Inquiry {
-  id String @id @default(cuid())
-
-  message String
-  status  InquiryStatus @default(OPEN)
-
-  buyerId    String
-  propertyId String
-
-  buyer    User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-}
-
-//////////////////////////////////////////////////////
-// CONVERSATION
-//////////////////////////////////////////////////////
-
-model Conversation {
-  id String @id @default(cuid())
-
-  userId     String
-  propertyId String
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  messages Message[]
-}
-
-//////////////////////////////////////////////////////
-// MESSAGE
-//////////////////////////////////////////////////////
-
-model Message {
-  id String @id @default(cuid())
-
-  role    MessageRole
-  content String
-
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
 }

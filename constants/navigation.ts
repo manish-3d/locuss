@@ -1,5 +1,9 @@
 export const navigationLinks = [
   {
+    title: "Properties",
+    href: "/properties",
+  },
+  {
     title: "Buy",
     href: "/buy",
   },

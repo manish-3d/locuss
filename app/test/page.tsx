@@ -8,7 +8,7 @@ export default async function TestPage() {
       {properties.map((property) => (
         <div key={property.id} className="rounded-lg border p-4">
           <h2 className="text-2xl font-bold">{property.title}</h2>
-          <p>{property.location}</p>
+          <p>{property.address}</p>
 
           <p>₹{property.price.toLocaleString()}</p>
         </div>

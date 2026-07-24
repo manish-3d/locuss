@@ -19,12 +19,15 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     notFound();
   }
 
+  const image = property.images[0]?.url ?? "/next.svg";
+  const location = `${property.city}, ${property.state}, ${property.country}`;
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
       {/* Image */}
       <div className="relative h-[500px] overflow-hidden rounded-2xl">
         <Image
-          src={property.image}
+          src={image}
           alt={property.title}
           fill
           className="object-cover"
@@ -39,8 +42,10 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
           <div className="mt-3 flex items-center gap-2 text-muted-foreground">
             <MapPin size={18} />
-            {property.location}
+            {property.address}
           </div>
+
+          <p className="mt-1 text-muted-foreground">{location}</p>
         </div>
 
         <h2 className="text-3xl font-bold text-primary">
@@ -57,6 +62,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
             <Bath />
             {property.bathrooms} Bathrooms
           </div>
+
+          <div>{property.area.toLocaleString("en-IN")} sq ft</div>
         </div>
 
         <div className="rounded-xl border p-6">

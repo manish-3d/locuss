@@ -33,11 +33,11 @@ export default async function FeaturedProperties() {
               key={property.id}
               id={property.id}
               title={property.title}
-              location={property.location}
+              location={property.address}
               price={property.price.toString()}
               bedrooms={property.bedrooms}
               bathrooms={property.bathrooms}
-              image={property.image}
+              image={property.images[0]?.url ?? "/next.svg"}
             />
           ))}
         </div>
