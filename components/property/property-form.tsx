@@ -9,7 +9,7 @@ import {
   type PropertySchema,
 } from "@/lib/validations/property";
 
-import { createProperty } from "@/app/dashboard/properties/actions";
+import { createProperty, updateProperty } from "@/app/dashboard/properties/actions";
 
 import BasicInformation from "./basic-information";
 import PropertyDetails from "./property-details";
@@ -18,7 +18,7 @@ import ListingInformation from "./listing-information";
 import AmenitiesSection from "./amenities-section";
 import ImageUpload from "./image-upload";
 
-export default function PropertyForm() {
+export default function PropertyForm({ property }: { property?: any }) {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -29,50 +29,58 @@ export default function PropertyForm() {
     reset,
     formState: { errors },
   } = useForm<PropertySchema>({
-    resolver: zodResolver(propertySchema),
+    resolver: zodResolver(propertySchema) as any,
 
     defaultValues: {
       // Basic Information
-      title: "",
-      description: "",
-      price: 0,
+      title: property?.title ?? "",
+      description: property?.description ?? "",
+      price: property ? Number(property.price) : 0,
 
       // Property Details
-      bedrooms: 0,
-      bathrooms: 0,
-      area: 0,
-      balconies: 0,
-      parking: 0,
-      furnished: false,
+      bedrooms: property?.bedrooms ?? 0,
+      bathrooms: property?.bathrooms ?? 0,
+      area: property?.area ?? 0,
+      balconies: property?.balconies ?? 0,
+      parking: property?.parking ?? 0,
+      furnished: property?.furnished ?? false,
 
       // Location
-      address: "",
-      city: "",
-      state: "",
-      country: "",
+      address: property?.address ?? "",
+      city: property?.city ?? "",
+      state: property?.state ?? "",
+      country: property?.country ?? "",
 
-      latitude: undefined,
-      longitude: undefined,
+      latitude: property?.latitude ?? undefined,
+      longitude: property?.longitude ?? undefined,
 
       // Listing
-      listingType: "SALE",
-      propertyType: "APARTMENT",
+      listingType: property?.listingType ?? "SALE",
+      propertyType: property?.propertyType ?? "APARTMENT",
 
       // Amenities
       amenities: [],
+
+      // Images
+      images: property?.images ? property.images.map((img: any) => img.url) : [],
     },
   });
 
   function onSubmit(data: PropertySchema) {
     startTransition(async () => {
       try {
-        await createProperty(data);
+        if (property) {
+          await updateProperty(property.id, data);
+        } else {
+          await createProperty(data);
+        }
         reset();
       } catch (error) {
         console.error(error);
       }
     });
   }
+
 
   return (
     <form
@@ -89,7 +97,7 @@ export default function PropertyForm() {
 
       <AmenitiesSection watch={watch} setValue={setValue} />
 
-      <ImageUpload />
+      <ImageUpload watch={watch} setValue={setValue} />
 
       <div className="flex justify-end gap-4 border-t border-gray-200 pt-8">
         <button

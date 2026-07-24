@@ -51,6 +51,25 @@ export async function getPropertyById(id: string) {
           order: "asc",
         },
       },
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
     where: {
       id,

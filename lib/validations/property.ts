@@ -44,6 +44,9 @@ export const propertySchema = z.object({
 
   // Amenities
   amenities: z.array(z.string()).default([]),
+
+  // Images
+  images: z.array(z.string()).default([]),
 });
 
 export type PropertySchema = z.infer<typeof propertySchema>;

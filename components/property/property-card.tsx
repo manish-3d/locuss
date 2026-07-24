@@ -1,19 +1,41 @@
+"use client";
+
 import Link from "next/link";
-import { Property } from "@prisma/client";
+import { Property, PropertyImage } from "@prisma/client";
 import { MapPin, BedDouble, Bath, Square, Pencil, Trash2 } from "lucide-react";
+import { useTransition } from "react";
+import { deleteProperty } from "@/app/dashboard/properties/actions";
 
 type Props = {
-  property: Property;
+  property: Property & {
+    images?: PropertyImage[];
+  };
 };
 
 export default function PropertyCard({ property }: Props) {
+  const [isPending, startTransition] = useTransition();
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (confirm("Are you sure you want to delete this property?")) {
+      startTransition(async () => {
+        try {
+          await deleteProperty(property.id);
+        } catch (error) {
+          alert("Failed to delete property.");
+          console.error(error);
+        }
+      });
+    }
+  };
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/dashboard/properties/${property.id}`}>
         <div className="relative">
-          {property.image ? (
+          {property.images && property.images[0]?.url ? (
             <img
-              src={property.image}
+              src={property.images[0].url}
               alt={property.title}
               className="h-64 w-full object-cover"
             />
@@ -79,11 +101,16 @@ export default function PropertyCard({ property }: Props) {
           Edit
         </Link>
 
-        <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-black py-3 font-medium text-white transition hover:bg-neutral-800">
+        <button
+          onClick={handleDelete}
+          disabled={isPending}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-black py-3 font-medium text-white transition hover:bg-neutral-800 disabled:opacity-60"
+        >
           <Trash2 size={18} />
-          Delete
+          {isPending ? "Deleting..." : "Delete"}
         </button>
       </div>
     </div>
   );
 }
+
