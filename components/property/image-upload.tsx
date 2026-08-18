@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ImagePlus, Trash2, Plus } from "lucide-react";
+import { useRef, useState } from "react";
+import { ImagePlus, Trash2, Loader2 } from "lucide-react";
 import { UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { PropertySchema } from "@/lib/validations/property";
 
@@ -10,21 +10,44 @@ type ImageUploadProps = {
   setValue: UseFormSetValue<PropertySchema>;
 };
 
-const SAMPLE_IMAGES = [
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80",
-];
-
 export default function ImageUpload({ watch, setValue }: ImageUploadProps) {
   const images = watch("images") || [];
-  const [newUrl, setNewUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleAddUrl = () => {
-    if (!newUrl.trim()) return;
-    setValue("images", [...images, newUrl.trim()]);
-    setNewUrl("");
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("file", file));
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Upload failed");
+      }
+
+      const data: { urls: string[] } = await res.json();
+      setValue("images", [...images, ...data.urls]);
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : "Upload failed. Please try again."
+      );
+    } finally {
+      setIsUploading(false);
+      // Reset input so the same file can be re-selected if needed
+      if (inputRef.current) inputRef.current.value = "";
+    }
   };
 
   const handleRemoveImage = (index: number) => {
@@ -34,71 +57,85 @@ export default function ImageUpload({ watch, setValue }: ImageUploadProps) {
     );
   };
 
-  const handleSelectSample = (url: string) => {
-    if (!images.includes(url)) {
-      setValue("images", [...images, url]);
-    }
-  };
-
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-8 space-y-6">
       <div>
         <h2 className="text-2xl font-semibold">Property Images</h2>
         <p className="mt-1 text-sm text-gray-500">
-          Provide photo URLs or choose sample photos for your property.
+          Upload photos of your property. Multiple images are supported.
         </p>
       </div>
 
-      {/* URL Input */}
-      <div className="flex gap-3">
-        <input
-          type="url"
-          value={newUrl}
-          onChange={(e) => setNewUrl(e.target.value)}
-          placeholder="Paste image URL (e.g. https://images.unsplash.com/...)"
-          className="flex-1 rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500"
-        />
-        <button
-          type="button"
-          onClick={handleAddUrl}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-        >
-          <Plus size={18} />
-          Add Image
-        </button>
-      </div>
-
-      {/* Sample Image Picker */}
-      <div>
-        <p className="text-xs font-semibold uppercase text-gray-400 mb-3">Quick Sample Photos</p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {SAMPLE_IMAGES.map((sampleUrl, i) => (
-            <div
-              key={i}
-              onClick={() => handleSelectSample(sampleUrl)}
-              className={`group relative h-24 cursor-pointer overflow-hidden rounded-xl border-2 transition ${
-                images.includes(sampleUrl) ? "border-blue-600 ring-2 ring-blue-600/30" : "border-transparent hover:border-gray-300"
-              }`}
-            >
-              <img src={sampleUrl} alt="Sample" className="h-full w-full object-cover transition group-hover:scale-105" />
-              {images.includes(sampleUrl) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-blue-600/40 text-xs font-bold text-white">
-                  Selected
-                </div>
-              )}
+      {/* Drop Zone / Upload Button */}
+      <div
+        onClick={() => !isUploading && inputRef.current?.click()}
+        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 transition cursor-pointer select-none ${
+          isUploading
+            ? "border-blue-300 bg-blue-50 cursor-not-allowed"
+            : "border-gray-300 hover:border-blue-500 hover:bg-blue-50/40"
+        }`}
+      >
+        {isUploading ? (
+          <>
+            <Loader2 size={36} className="animate-spin text-blue-500" />
+            <p className="text-sm font-medium text-blue-600">Uploading images…</p>
+          </>
+        ) : (
+          <>
+            <ImagePlus size={36} className="text-gray-400" />
+            <div className="text-center">
+              <p className="text-sm font-semibold text-gray-700">
+                Click to upload images
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                PNG, JPG, WEBP up to 10MB each. Multiple files allowed.
+              </p>
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
 
-      {/* Image Preview List */}
+      {/* Hidden file input */}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={handleFileChange}
+        disabled={isUploading}
+      />
+
+      {/* Upload error */}
+      {uploadError && (
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-200">
+          {uploadError}
+        </p>
+      )}
+
+      {/* Image Preview Grid */}
       {images.length > 0 && (
         <div className="space-y-3 border-t pt-6">
-          <p className="text-xs font-semibold uppercase text-gray-400">Selected Images ({images.length})</p>
+          <p className="text-xs font-semibold uppercase text-gray-400">
+            Uploaded Images ({images.length})
+          </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {images.map((url, index) => (
-              <div key={index} className="group relative h-32 overflow-hidden rounded-xl border shadow-sm">
-                <img src={url} alt={`Property ${index + 1}`} className="h-full w-full object-cover" />
+              <div
+                key={url + index}
+                className="group relative h-32 overflow-hidden rounded-xl border shadow-sm"
+              >
+                {index === 0 && (
+                  <span className="absolute left-2 top-2 z-10 rounded-md bg-black/70 px-2 py-0.5 text-xs font-semibold text-white">
+                    Cover
+                  </span>
+                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={`Property image ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}

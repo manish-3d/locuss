@@ -21,12 +21,7 @@ export async function createProperty(data: PropertySchema) {
   const imagesToCreate =
     validated.images && validated.images.length > 0
       ? validated.images.map((url, index) => ({ url, order: index }))
-      : [
-          {
-            url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
-            order: 0,
-          },
-        ];
+      : [];
 
   await prisma.property.create({
     data: {
