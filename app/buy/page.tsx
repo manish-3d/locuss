@@ -1,16 +1,16 @@
-import PropertyList from "@/components/property-list";
+import PropertiesPage from "@/app/properties/page";
 
-export default function BuyPage() {
+type Props = {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+};
+
+export default async function BuyPage({ searchParams }: Props) {
+  const params = await searchParams;
+  
+  // Reuse the main properties discovery page, but force listingType to SALE
   return (
-    <main className="mx-auto max-w-7xl px-6 py-12">
-      <div className="mb-10">
-        <h1 className="text-4xl font-bold">Buy</h1>
-        <p className="mt-3 text-muted-foreground">
-          Find homes and properties listed for sale.
-        </p>
-      </div>
-
-      <PropertyList listingType="SALE" emptyMessage="No properties for sale" />
-    </main>
+    <PropertiesPage 
+      searchParams={Promise.resolve({ ...params, listingType: "SALE" })} 
+    />
   );
 }

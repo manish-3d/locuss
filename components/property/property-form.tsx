@@ -91,7 +91,7 @@ export default function PropertyForm({ property }: { property?: any }) {
 
       <PropertyDetails register={register} errors={errors} />
 
-      <LocationInformation register={register} errors={errors} />
+      <LocationInformation register={register} errors={errors} setValue={setValue} watch={watch} />
 
       <ListingInformation watch={watch} setValue={setValue} />
 

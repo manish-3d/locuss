@@ -1,16 +1,16 @@
-import PropertyList from "@/components/property-list";
+import PropertiesPage from "@/app/properties/page";
 
-export default function RentPage() {
+type Props = {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+};
+
+export default async function RentPage({ searchParams }: Props) {
+  const params = await searchParams;
+  
+  // Reuse the main properties discovery page, but force listingType to RENT
   return (
-    <main className="mx-auto max-w-7xl px-6 py-12">
-      <div className="mb-10">
-        <h1 className="text-4xl font-bold">Rent</h1>
-        <p className="mt-3 text-muted-foreground">
-          Explore properties currently available for rent.
-        </p>
-      </div>
-
-      <PropertyList listingType="RENT" emptyMessage="No rentals found" />
-    </main>
+    <PropertiesPage 
+      searchParams={Promise.resolve({ ...params, listingType: "RENT" })} 
+    />
   );
 }

@@ -1,4 +1,4 @@
-import PropertyCard from "@/features/property/components/property-card";
+import PropertyCard from "@/app/properties/components/property-card";
 import { getFeaturedProperties } from "@/lib/property";
 
 export default async function FeaturedProperties() {
@@ -33,11 +33,17 @@ export default async function FeaturedProperties() {
               key={property.id}
               id={property.id}
               title={property.title}
-              location={property.address}
-              price={property.price.toString()}
+              price={property.price}
+              city={property.city}
+              state={property.state}
               bedrooms={property.bedrooms}
               bathrooms={property.bathrooms}
-              image={property.images[0]?.url ?? "/next.svg"}
+              area={property.area}
+              propertyType={property.propertyType}
+              listingType={property.listingType}
+              furnished={property.furnished}
+              parking={property.parking}
+              imageUrl={property.images[0]?.url || null}
             />
           ))}
         </div>

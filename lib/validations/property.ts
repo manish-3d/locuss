@@ -27,8 +27,8 @@ export const propertySchema = z.object({
   state: z.string().min(2),
   country: z.string().min(2),
 
-  latitude: z.coerce.number().optional(),
-  longitude: z.coerce.number().optional(),
+  latitude: z.coerce.number().min(-90, "Latitude must be between -90 and 90").max(90, "Latitude must be between -90 and 90").optional(),
+  longitude: z.coerce.number().min(-180, "Longitude must be between -180 and 180").max(180, "Longitude must be between -180 and 180").optional(),
 
   // Listing
   listingType: z.enum(["SALE", "RENT"]),

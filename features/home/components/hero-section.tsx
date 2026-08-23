@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import SearchBar from "./search-bar";
 
 export default function HeroSection() {
@@ -21,7 +22,9 @@ export default function HeroSection() {
       </p>
 
       {/* Search Bar */}
-      <SearchBar />
+      <Suspense fallback={<div className="h-24 w-full animate-pulse rounded-2xl bg-gray-100 mt-10"></div>}>
+        <SearchBar />
+      </Suspense>
 
       {/* Stats */}
       <div className="mt-16 flex flex-wrap justify-center gap-10">

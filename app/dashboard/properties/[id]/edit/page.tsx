@@ -25,6 +25,11 @@ export default async function EditPropertyPage({ params }: Props) {
     where: {
       id,
     },
+    include: {
+      images: {
+        orderBy: { order: "asc" },
+      },
+    },
   });
 
   if (!property) {

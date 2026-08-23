@@ -1,11 +1,19 @@
+import type { UseFormSetValue, UseFormWatch } from "react-hook-form";
+import type { PropertySchema } from "@/lib/validations/property";
+import LocationPicker from "@/components/maps/location-picker";
+
 type LocationInformationProps = {
   register: any;
   errors: any;
+  setValue: UseFormSetValue<PropertySchema>;
+  watch: UseFormWatch<PropertySchema>;
 };
 
 export default function LocationInformation({
   register,
   errors,
+  setValue,
+  watch,
 }: LocationInformationProps) {
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-8">
@@ -18,6 +26,9 @@ export default function LocationInformation({
       </div>
 
       <div className="space-y-6">
+        {/* Location Picker with Geocoding */}
+        <LocationPicker setValue={setValue} watch={watch} />
+
         {/* Address */}
         <div>
           <label className="mb-2 block text-sm font-medium">
@@ -69,17 +80,6 @@ export default function LocationInformation({
               placeholder="India"
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-black"
             />
-          </div>
-        </div>
-
-        {/* Map Placeholder */}
-        <div>
-          <label className="mb-3 block text-sm font-medium">
-            Property Location
-          </label>
-
-          <div className="flex h-72 items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50">
-            <p className="text-gray-500">Interactive Map Coming Soon</p>
           </div>
         </div>
       </div>

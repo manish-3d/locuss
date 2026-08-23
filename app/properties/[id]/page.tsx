@@ -1,17 +1,36 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { Bath, BedDouble, MapPin, Building, CheckCircle2 } from "lucide-react";
+import { Bath, BedDouble, MapPin, Building, CheckCircle2, Navigation } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getPropertyById } from "@/lib/property";
+import { getNearbyProperties } from "@/lib/property-nearby";
 import PropertyInteractions from "@/components/property/property-interactions";
+import PropertyCard from "@/app/properties/components/property-card";
+import PropertyMap from "@/app/properties/components/maps/property-map";
 
 type PropertyPageProps = {
   params: Promise<{
     id: string;
   }>;
 };
+
+export async function generateMetadata({ params }: PropertyPageProps) {
+  const { id } = await params;
+  const property = await getPropertyById(id);
+
+  if (!property) {
+    return {
+      title: "Property Not Found",
+    };
+  }
+
+  return {
+    title: `${property.title} | Locus`,
+    description: property.description.substring(0, 160),
+  };
+}
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { id } = await params;
@@ -47,6 +66,41 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
   const image = property.images[0]?.url ?? "/next.svg";
   const location = `${property.city}, ${property.state}, ${property.country}`;
+
+  // Fetch similar properties
+  const similarProperties = await prisma.property.findMany({
+    where: {
+      id: { not: property.id },
+      status: "PUBLISHED",
+      OR: [
+        { city: property.city },
+        { propertyType: property.propertyType },
+        { listingType: property.listingType }
+      ]
+    },
+    include: {
+      images: {
+        orderBy: { order: 'asc' },
+        take: 1
+      }
+    },
+    take: 3,
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  // Fetch nearby properties if coordinates exist
+  let nearbyProperties: any[] = [];
+  if (property.latitude != null && property.longitude != null) {
+    nearbyProperties = await getNearbyProperties(
+      property.latitude,
+      property.longitude,
+      property.id,
+      10, // 10km radius
+      3 // Limit to 3
+    );
+  }
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12 space-y-12">
@@ -145,14 +199,98 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         <p className="leading-relaxed text-gray-600 whitespace-pre-line">{property.description}</p>
       </div>
 
+        {/* Location Section */}
+        <div className="mt-8 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-semibold">Location</h2>
+            {property.latitude != null && property.longitude != null && (
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${property.latitude},${property.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
+              >
+                <Navigation size={16} />
+                Get Directions
+              </a>
+            )}
+          </div>
+          <p className="text-gray-600">
+            {property.address}, {property.city}, {property.state}, {property.country}
+          </p>
+          {property.latitude != null && property.longitude != null ? (
+            <PropertyMap latitude={property.latitude} longitude={property.longitude} title={property.title} />
+          ) : (
+            <p className="text-sm text-gray-500">Location coordinates not available.</p>
+          )}
+        </div>
+
       {/* Interactive Section (Favorites, Inquiries, Reviews) */}
       <PropertyInteractions
         propertyId={property.id}
         isFavorited={isFavorited}
         ownerName={property.owner.name}
         ownerEmail={property.owner.email}
-        reviews={property.reviews as any}
+        reviews={property.reviews}
       />
+      
+      {/* Nearby Properties */}
+      {nearbyProperties.length > 0 && (
+        <div className="pt-12 border-t space-y-6">
+          <h3 className="text-2xl font-bold">Properties Near This Location</h3>
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {nearbyProperties.map((simProp) => (
+              <div key={simProp.id} className="flex flex-col">
+                <PropertyCard
+                  id={simProp.id}
+                  title={simProp.title}
+                  price={simProp.price}
+                  city={simProp.city}
+                  state={simProp.state}
+                  bedrooms={simProp.bedrooms}
+                  bathrooms={simProp.bathrooms}
+                  area={simProp.area}
+                  propertyType={simProp.propertyType}
+                  listingType={simProp.listingType}
+                  furnished={simProp.furnished}
+                  parking={simProp.parking}
+                  imageUrl={simProp.imageUrl}
+                />
+                <p className="mt-2 text-sm text-gray-500 text-center font-medium">
+                  {simProp.distance.toFixed(1)} km away
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Similar Properties */}
+      {similarProperties.length > 0 && (
+        <div className="pt-12 border-t space-y-6">
+          <h3 className="text-2xl font-bold">Similar Properties</h3>
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {similarProperties.map((simProp) => (
+              <PropertyCard
+                key={simProp.id}
+                id={simProp.id}
+                title={simProp.title}
+                price={simProp.price}
+                city={simProp.city}
+                state={simProp.state}
+                bedrooms={simProp.bedrooms}
+                bathrooms={simProp.bathrooms}
+                area={simProp.area}
+                propertyType={simProp.propertyType}
+                listingType={simProp.listingType}
+                furnished={simProp.furnished}
+                parking={simProp.parking}
+                imageUrl={simProp.images[0]?.url || null}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
