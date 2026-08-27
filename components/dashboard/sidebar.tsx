@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { authClient } from "@/lib/auth-client";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 const links = [
   {
@@ -77,11 +78,14 @@ export default function Sidebar() {
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r bg-white">
-      <div className="border-b p-6">
-        <h2 className="text-2xl font-bold">Locus</h2>
-        <p className="text-sm text-gray-500">
-          {isAdmin ? "Admin Console" : "Seller Dashboard"}
-        </p>
+      <div className="border-b p-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Locus</h2>
+          <p className="text-sm text-gray-500">
+            {isAdmin ? "Admin Console" : "Seller Dashboard"}
+          </p>
+        </div>
+        <NotificationsBell />
       </div>
 
       <nav className="flex-1 space-y-2 p-4">

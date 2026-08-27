@@ -10,6 +10,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-serif: var(--font-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,6 +47,14 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Homepage premium palette */
+  --color-locus-cream: var(--locus-cream);
+  --color-locus-sand: var(--locus-sand);
+  --color-locus-gold: var(--locus-gold);
+  --color-locus-gold-light: var(--locus-gold-light);
+  --color-locus-warm-gray: var(--locus-warm-gray);
+  --color-locus-charcoal: var(--locus-charcoal);
+  --color-locus-border: var(--locus-border);
 }
 
 :root {
@@ -81,6 +90,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Homepage premium warm palette */
+  --locus-cream: #faf7f2;         /* rich warm ivory */
+  --locus-sand: #f2ece0;          /* warm beige / sand */
+  --locus-gold: #b8924a;          /* caramel / muted bronze */
+  --locus-gold-light: #dfc99a;    /* soft gold for highlights */
+  --locus-warm-gray: #7a7268;     /* warm taupe */
+  --locus-charcoal: #1e1b17;      /* deep warm near-black */
+  --locus-border: #e5ddd0;        /* warm beige border */
 }
 
 .dark {
@@ -126,5 +143,46 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* ─── Homepage Hero Illustration Animations ─── */
+
+@keyframes locus-pull {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  35% { transform: translateX(-2px) rotate(-1.5deg); }
+  65% { transform: translateX(-1px) rotate(-0.5deg); }
+}
+
+@keyframes locus-rope-wave {
+  0%, 100% { d: path("M 145 258 Q 220 245 292 240"); }
+  50% { d: path("M 145 258 Q 220 255 292 240"); }
+}
+
+@keyframes locus-house-drift {
+  0%, 100% { transform: translateX(0); }
+  40% { transform: translateX(-3px); }
+  70% { transform: translateX(-1.5px); }
+}
+
+@keyframes locus-cloud-drift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(20px); }
+}
+
+@keyframes locus-bird-fly {
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  50% { transform: translateY(-3px) scaleX(0.9); }
+}
+
+@keyframes locus-sun-pulse {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .locus-animate * {
+    animation: none !important;
+    transition: none !important;
   }
 }

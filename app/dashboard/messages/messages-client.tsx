@@ -1,197 +1,218 @@
 "use client";
 
-import { useTransition } from "react";
-import { MessageSquare, ArrowUpRight, ArrowDownLeft, Calendar, Trash2 } from "lucide-react";
-import { InquiryStatus } from "@prisma/client";
-import { updateInquiryStatus, deleteInquiry } from "@/lib/actions/interactions";
+import { useState, useEffect, useRef } from "react";
+import { usePusherChat } from "@/hooks/use-pusher";
+import { Send, User, Image as ImageIcon } from "lucide-react";
+import { format } from "date-fns";
+import clsx from "clsx";
+import Image from "next/image";
 
-type InquiryWithBuyer = {
+type ChatPreview = any; // Simplifying for brevity, should map to the Prisma query type
+type ChatMessage = {
   id: string;
-  message: string;
-  status: InquiryStatus;
-  createdAt: Date;
-  buyer: {
-    name: string;
-    email: string;
-  };
-  property: {
-    id: string;
-    title: string;
-  };
+  content: string;
+  senderId: string;
+  createdAt: string;
+  isRead: boolean;
 };
 
-type InquiryWithOwner = {
-  id: string;
-  message: string;
-  status: InquiryStatus;
-  createdAt: Date;
-  property: {
-    id: string;
-    title: string;
-    owner: {
-      name: string;
-      email: string;
-    };
-  };
-};
+export default function MessagesClient({ 
+  initialChats, 
+  currentUserId 
+}: { 
+  initialChats: ChatPreview[], 
+  currentUserId: string 
+}) {
+  const [chats, setChats] = useState(initialChats);
+  const [activeChat, setActiveChat] = useState<ChatPreview | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-type MessagesClientProps = {
-  receivedInquiries: InquiryWithBuyer[];
-  sentInquiries: InquiryWithOwner[];
-};
+  // Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-export default function MessagesClient({ receivedInquiries, sentInquiries }: MessagesClientProps) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleStatusChange = (inquiryId: string, status: InquiryStatus) => {
-    startTransition(async () => {
-      try {
-        await updateInquiryStatus(inquiryId, status);
-      } catch (error: any) {
-        alert(error.message || "Failed to update status");
-      }
-    });
-  };
-
-  const handleDelete = (inquiryId: string) => {
-    if (confirm("Are you sure you want to delete this inquiry?")) {
-      startTransition(async () => {
-        try {
-          await deleteInquiry(inquiryId);
-        } catch (error: any) {
-          alert(error.message || "Failed to delete inquiry");
+  // Load messages when chat selected
+  useEffect(() => {
+    if (!activeChat) return;
+    fetch(`/api/chats/${activeChat.id}/messages`)
+      .then(async res => {
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text);
         }
+        return res.json();
+      })
+      .then(data => setMessages(data))
+      .catch(console.error);
+  }, [activeChat]);
+
+  // Pusher real-time updates for active chat
+  usePusherChat(activeChat?.id || "", (message) => {
+    setMessages(prev => [...prev, message]);
+    
+    // Update the last message in the sidebar
+    setChats(prev => prev.map(chat => 
+      chat.id === activeChat?.id 
+        ? { ...chat, messages: [message] } 
+        : chat
+    ));
+  });
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !activeChat) return;
+
+    const content = newMessage;
+    setNewMessage("");
+
+    // Optimistic UI update could go here
+
+    try {
+      await fetch(`/api/chats/${activeChat.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
       });
+    } catch (error) {
+      console.error("Failed to send message", error);
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold">Messages & Inquiries</h1>
-        <p className="mt-2 text-gray-500">
-          Communicate with buyers, sellers, and agents. Manage property inquiries.
-        </p>
+    <div className="flex h-[calc(100vh-8rem)] rounded-2xl border bg-white shadow-sm overflow-hidden">
+      {/* Sidebar: Chat List */}
+      <div className="w-1/3 border-r bg-gray-50/50 flex flex-col">
+        <div className="p-4 border-b bg-white">
+          <h2 className="font-semibold text-lg">Messages</h2>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {chats.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 text-sm">No messages yet.</div>
+          ) : (
+            chats.map((chat) => {
+              const otherUser = chat.buyerId === currentUserId ? chat.seller : chat.buyer;
+              const lastMessage = chat.messages[0];
+              const isActive = activeChat?.id === chat.id;
+
+              return (
+                <button
+                  key={chat.id}
+                  onClick={() => setActiveChat(chat)}
+                  className={clsx(
+                    "w-full p-4 border-b text-left flex items-start gap-3 transition hover:bg-gray-100",
+                    isActive ? "bg-blue-50 border-l-4 border-l-blue-600" : "bg-white"
+                  )}
+                >
+                  <div className="h-10 w-10 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    {otherUser.image ? (
+                      <img src={otherUser.image} alt={otherUser.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="h-5 w-5 text-gray-500" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <h3 className="font-medium text-sm truncate">{otherUser.name}</h3>
+                      {lastMessage && (
+                        <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                          {format(new Date(lastMessage.createdAt), "MMM d")}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-blue-600 truncate mb-1">{chat.property.title}</p>
+                    <p className="text-sm text-gray-500 truncate">
+                      {lastMessage?.content || "No messages yet"}
+                    </p>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Received Inquiries */}
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3 border-b pb-4">
-            <ArrowDownLeft className="h-6 w-6 text-green-600" />
-            <h2 className="text-xl font-semibold">Inquiries Received ({receivedInquiries.length})</h2>
-          </div>
-
-          <div className="mt-6 space-y-4">
-            {receivedInquiries.length === 0 ? (
-              <div className="py-8 text-center text-gray-500">
-                <MessageSquare className="mx-auto mb-3 h-8 w-8 text-gray-300" />
-                <p className="text-sm">No inquiries received yet.</p>
-              </div>
-            ) : (
-              receivedInquiries.map((inquiry) => (
-                <div
-                  key={inquiry.id}
-                  className="rounded-xl border p-4 hover:border-blue-500 transition space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-800">{inquiry.buyer.name}</span>
-                    <span className="text-xs text-gray-400 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(inquiry.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block">
-                    Property: {inquiry.property.title}
-                  </p>
-                  <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-lg">
-                    {inquiry.message}
-                  </p>
-                  <div className="flex justify-between items-center text-xs pt-2 border-t">
-                    <span className="text-gray-400">Email: {inquiry.buyer.email}</span>
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={inquiry.status}
-                        onChange={(e) => handleStatusChange(inquiry.id, e.target.value as InquiryStatus)}
-                        disabled={isPending}
-                        className="rounded-lg border bg-white px-2 py-1 outline-none text-xs font-medium"
-                      >
-                        <option value="OPEN">OPEN</option>
-                        <option value="CONTACTED">CONTACTED</option>
-                        <option value="CLOSED">CLOSED</option>
-                      </select>
-                      <button
-                        onClick={() => handleDelete(inquiry.id)}
-                        disabled={isPending}
-                        className="p-1 text-red-500 hover:bg-red-50 rounded"
-                        title="Delete Inquiry"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col bg-white">
+        {activeChat ? (
+          <>
+            {/* Chat Header */}
+            <div className="p-4 border-b flex items-center justify-between shadow-sm z-10">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                  {(activeChat.buyerId === currentUserId ? activeChat.seller.image : activeChat.buyer.image) ? (
+                    <img src={activeChat.buyerId === currentUserId ? activeChat.seller.image : activeChat.buyer.image} alt="User" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="h-5 w-5 text-gray-500" />
+                  )}
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Sent Inquiries */}
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3 border-b pb-4">
-            <ArrowUpRight className="h-6 w-6 text-blue-600" />
-            <h2 className="text-xl font-semibold">Inquiries Sent ({sentInquiries.length})</h2>
-          </div>
-
-          <div className="mt-6 space-y-4">
-            {sentInquiries.length === 0 ? (
-              <div className="py-8 text-center text-gray-500">
-                <MessageSquare className="mx-auto mb-3 h-8 w-8 text-gray-300" />
-                <p className="text-sm">You haven&apos;t sent any inquiries yet.</p>
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    {activeChat.buyerId === currentUserId ? activeChat.seller.name : activeChat.buyer.name}
+                  </h3>
+                  <p className="text-xs text-gray-500">{activeChat.property.title}</p>
+                </div>
               </div>
-            ) : (
-              sentInquiries.map((inquiry) => (
-                <div
-                  key={inquiry.id}
-                  className="rounded-xl border p-4 hover:border-blue-500 transition space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-800">
-                      Owner: {inquiry.property.owner.name}
-                    </span>
-                    <span className="text-xs text-gray-400 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(inquiry.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block">
-                    Property: {inquiry.property.title}
-                  </p>
-                  <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-lg">
-                    {inquiry.message}
-                  </p>
-                  <div className="flex justify-between items-center text-xs pt-2 border-t">
-                    <span className="text-gray-400">Email: {inquiry.property.owner.email}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-700 uppercase text-[10px]">
-                        {inquiry.status}
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              {messages.map((msg, idx) => {
+                const isMe = msg.senderId === currentUserId;
+                const showAvatar = idx === messages.length - 1 || messages[idx + 1]?.senderId !== msg.senderId;
+                
+                return (
+                  <div key={msg.id} className={clsx("flex", isMe ? "justify-end" : "justify-start")}>
+                    <div className={clsx(
+                      "max-w-[70%] rounded-2xl px-4 py-2 shadow-sm relative",
+                      isMe ? "bg-blue-600 text-white rounded-br-none" : "bg-white border text-gray-900 rounded-bl-none"
+                    )}>
+                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      <span className={clsx(
+                        "text-[10px] mt-1 block",
+                        isMe ? "text-blue-100 text-right" : "text-gray-400"
+                      )}>
+                        {format(new Date(msg.createdAt), "h:mm a")}
                       </span>
-                      <button
-                        onClick={() => handleDelete(inquiry.id)}
-                        disabled={isPending}
-                        className="p-1 text-red-500 hover:bg-red-50 rounded"
-                        title="Delete Inquiry"
-                      >
-                        <Trash2 size={14} />
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 bg-white border-t">
+              <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a message..."
+                  className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                />
+                <button
+                  type="submit"
+                  disabled={!newMessage.trim()}
+                  className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="h-5 w-5" />
+                </button>
+              </form>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+            <MessageCircle className="h-16 w-16 mb-4 text-gray-200" />
+            <p>Select a conversation to start messaging</p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
+
+// Temporary import for the empty state icon
+import { MessageCircle } from "lucide-react";

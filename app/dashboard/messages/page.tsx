@@ -12,61 +12,49 @@ export default async function MessagesPage() {
     return <div className="p-8 text-center">Unauthorized</div>;
   }
 
-  // Fetch received inquiries (where user is the owner of the property)
-  const receivedInquiries = await prisma.inquiry.findMany({
+  const chats = await prisma.chat.findMany({
     where: {
-      property: {
-        ownerId: session.user.id,
-      },
+      OR: [
+        { buyerId: session.user.id },
+        { sellerId: session.user.id }
+      ]
     },
     include: {
       buyer: {
         select: {
+          id: true,
           name: true,
-          email: true,
+          image: true,
+        },
+      },
+      seller: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
         },
       },
       property: {
         select: {
           id: true,
           title: true,
+          images: { take: 1 }
         },
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  // Fetch sent inquiries (where user is the buyer)
-  const sentInquiries = await prisma.inquiry.findMany({
-    where: {
-      buyerId: session.user.id,
-    },
-    include: {
-      property: {
-        select: {
-          id: true,
-          title: true,
-          owner: {
-            select: {
-              name: true,
-              email: true,
-            },
-          },
+      messages: {
+        orderBy: {
+          createdAt: 'desc'
         },
-      },
+        take: 1
+      }
     },
     orderBy: {
-      createdAt: "desc",
+      updatedAt: "desc",
     },
   });
 
   return (
-    <MessagesClient
-      receivedInquiries={receivedInquiries}
-      sentInquiries={sentInquiries}
-    />
+    <MessagesClient initialChats={chats} currentUserId={session.user.id} />
   );
 }
 

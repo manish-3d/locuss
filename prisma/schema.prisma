@@ -29,6 +29,11 @@ model User {
   properties    Property[]     @relation("UserProperties")
   reviews       Review[]
 
+  notifications Notification[]
+  buyerChats    Chat[]         @relation("ChatBuyer")
+  sellerChats   Chat[]         @relation("ChatSeller")
+  chatMessages  ChatMessage[]  @relation("ChatMessageSender")
+
   @@map("user")
 }
 
@@ -114,6 +119,7 @@ model Property {
   images        PropertyImage[]
   inquiries     Inquiry[]
   reviews       Review[]
+  chats         Chat[]
 
   @@index([city])
   @@index([price])
@@ -184,6 +190,7 @@ model Inquiry {
 
   buyer    User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  chat     Chat?
 }
 
 model Conversation {
@@ -245,4 +252,47 @@ enum MessageRole {
   USER
   ASSISTANT
   SYSTEM
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  content   String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Chat {
+  id         String   @id @default(cuid())
+  propertyId String
+  buyerId    String
+  sellerId   String
+  inquiryId  String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  buyer      User     @relation("ChatBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller     User     @relation("ChatSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  inquiry    Inquiry? @relation(fields: [inquiryId], references: [id], onDelete: SetNull)
+  
+  messages   ChatMessage[]
+  
+  @@unique([propertyId, buyerId, sellerId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  chatId    String
+  senderId  String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    User     @relation("ChatMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 }

@@ -61,8 +61,14 @@ export async function sendInquiry(propertyId: string, message: string) {
   if (!message || message.trim().length < 5) {
     throw new Error("Message must be at least 5 characters long.");
   }
+  
+  const property = await prisma.property.findUnique({
+    where: { id: propertyId }
+  });
+  
+  if (!property) throw new Error("Property not found");
 
-  await prisma.inquiry.create({
+  const inquiry = await prisma.inquiry.create({
     data: {
       propertyId,
       buyerId: session.user.id,
@@ -70,6 +76,47 @@ export async function sendInquiry(propertyId: string, message: string) {
       status: "OPEN",
     },
   });
+  
+  if (property.ownerId !== session.user.id) {
+    let chat = await prisma.chat.findUnique({
+      where: {
+        propertyId_buyerId_sellerId: {
+          propertyId,
+          buyerId: session.user.id,
+          sellerId: property.ownerId
+        }
+      }
+    });
+    
+    if (!chat) {
+      chat = await prisma.chat.create({
+        data: {
+          propertyId,
+          buyerId: session.user.id,
+          sellerId: property.ownerId,
+          inquiryId: inquiry.id
+        }
+      });
+    } else if (!chat.inquiryId) {
+      chat = await prisma.chat.update({
+        where: { id: chat.id },
+        data: { inquiryId: inquiry.id }
+      });
+    }
+    
+    await prisma.chatMessage.create({
+      data: {
+        chatId: chat.id,
+        senderId: session.user.id,
+        content: message.trim()
+      }
+    });
+    
+    await prisma.chat.update({
+      where: { id: chat.id },
+      data: { updatedAt: new Date() }
+    });
+  }
 
   revalidatePath(`/properties/${propertyId}`);
   revalidatePath("/dashboard/messages");
