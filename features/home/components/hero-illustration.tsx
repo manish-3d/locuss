@@ -7,9 +7,6 @@ export default function HeroIllustration() {
     duration: 2.8,
     ease: "easeInOut" as const,
     times: [0, 0.45, 0.85, 1], // Neutral -> Pulling -> Max Effort (Bounce) -> Settled
-    repeat: Infinity,
-    repeatType: "reverse" as const,
-    repeatDelay: 0.8,
   };
 
   const houseSlide = {
