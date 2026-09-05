@@ -22,16 +22,17 @@ export default function AmenitiesSection({ watch, setValue }: Props) {
   }
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-8">
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold">Amenities</h2>
-
-        <p className="mt-1 text-sm text-gray-500">
-          Select everything available in your property.
+    <section className="rounded-2xl border border-[#e5ddd0] bg-white p-6 sm:p-8 shadow-xs">
+      <div className="mb-6 border-b border-[#f2ece0] pb-4">
+        <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1e1b17]">
+          Features & Amenities
+        </h2>
+        <p className="mt-1 text-xs sm:text-sm text-[#7a7268]">
+          Select premium amenities and infrastructure highlights available at this property.
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2.5">
         {AMENITIES.map((amenity) => {
           const active = selected.includes(amenity);
 
@@ -40,13 +41,13 @@ export default function AmenitiesSection({ watch, setValue }: Props) {
               key={amenity}
               type="button"
               onClick={() => toggleAmenity(amenity)}
-              className={`rounded-full border px-5 py-2 text-sm transition-all duration-200 ${
+              className={`rounded-full border px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 ${
                 active
-                  ? "border-black bg-black text-white"
-                  : "border-gray-300 bg-white text-black hover:border-black"
+                  ? "border-[#1e1b17] bg-[#1e1b17] text-white shadow-xs"
+                  : "border-[#e5ddd0] bg-[#faf7f2]/50 text-[#1e1b17] hover:border-[#b8924a]"
               }`}
             >
-              {active && "✓ "}
+              {active && <span className="text-[#b8924a] mr-1">✦</span>}
               {amenity}
             </button>
           );

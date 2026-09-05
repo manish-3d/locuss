@@ -45,7 +45,6 @@ export default function ImageUpload({ watch, setValue }: ImageUploadProps) {
       );
     } finally {
       setIsUploading(false);
-      // Reset input so the same file can be re-selected if needed
       if (inputRef.current) inputRef.current.value = "";
     }
   };
@@ -58,44 +57,47 @@ export default function ImageUpload({ watch, setValue }: ImageUploadProps) {
   };
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-8 space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold">Property Images</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Upload photos of your property. Multiple images are supported.
+    <section className="rounded-2xl border border-[#e5ddd0] bg-white p-6 sm:p-8 shadow-xs space-y-5">
+      <div className="border-b border-[#f2ece0] pb-4">
+        <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1e1b17]">
+          Gallery & Visual Assets
+        </h2>
+        <p className="mt-1 text-xs sm:text-sm text-[#7a7268]">
+          Upload high-resolution photography. The first uploaded image will serve as the listing cover.
         </p>
       </div>
 
-      {/* Drop Zone / Upload Button */}
+      {/* Drop Zone */}
       <div
         onClick={() => !isUploading && inputRef.current?.click()}
-        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 transition cursor-pointer select-none ${
+        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 sm:py-12 transition cursor-pointer select-none ${
           isUploading
-            ? "border-blue-300 bg-blue-50 cursor-not-allowed"
-            : "border-gray-300 hover:border-blue-500 hover:bg-blue-50/40"
+            ? "border-[#b8924a] bg-[#faf7f2] cursor-not-allowed"
+            : "border-[#e5ddd0] bg-[#faf7f2]/50 hover:border-[#b8924a] hover:bg-[#b8924a]/5"
         }`}
       >
         {isUploading ? (
           <>
-            <Loader2 size={36} className="animate-spin text-blue-500" />
-            <p className="text-sm font-medium text-blue-600">Uploading images…</p>
+            <Loader2 size={32} className="animate-spin text-[#b8924a]" />
+            <p className="text-xs sm:text-sm font-medium text-[#1e1b17]">Uploading photography…</p>
           </>
         ) : (
           <>
-            <ImagePlus size={36} className="text-gray-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-[#e5ddd0] text-[#b8924a] shadow-xs">
+              <ImagePlus size={24} />
+            </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-gray-700">
-                Click to upload images
+              <p className="text-xs sm:text-sm font-semibold text-[#1e1b17]">
+                Click or drag photos to upload
               </p>
-              <p className="mt-1 text-xs text-gray-400">
-                PNG, JPG, WEBP up to 10MB each. Multiple files allowed.
+              <p className="mt-1 text-[11px] text-[#7a7268]">
+                PNG, JPG, or WEBP up to 10MB each. High-definition images recommended.
               </p>
             </div>
           </>
         )}
       </div>
 
-      {/* Hidden file input */}
       <input
         ref={inputRef}
         type="file"
@@ -106,28 +108,27 @@ export default function ImageUpload({ watch, setValue }: ImageUploadProps) {
         disabled={isUploading}
       />
 
-      {/* Upload error */}
       {uploadError && (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-200">
+        <p className="rounded-xl bg-red-50 px-4 py-2.5 text-xs text-red-600 border border-red-200">
           {uploadError}
         </p>
       )}
 
       {/* Image Preview Grid */}
       {images.length > 0 && (
-        <div className="space-y-3 border-t pt-6">
-          <p className="text-xs font-semibold uppercase text-gray-400">
-            Uploaded Images ({images.length})
+        <div className="space-y-3 border-t border-[#f2ece0] pt-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7a7268]">
+            Attached Photos ({images.length})
           </p>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {images.map((url, index) => (
               <div
                 key={url + index}
-                className="group relative h-32 overflow-hidden rounded-xl border shadow-sm"
+                className="group relative h-28 sm:h-32 overflow-hidden rounded-xl border border-[#e5ddd0] shadow-xs bg-[#f2ece0]"
               >
                 {index === 0 && (
-                  <span className="absolute left-2 top-2 z-10 rounded-md bg-black/70 px-2 py-0.5 text-xs font-semibold text-white">
-                    Cover
+                  <span className="absolute left-2 top-2 z-10 rounded-full bg-[#1e1b17]/85 backdrop-blur-xs px-2 py-0.5 text-[9px] font-semibold text-white uppercase tracking-wider">
+                    Primary Cover
                   </span>
                 )}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -138,10 +139,14 @@ export default function ImageUpload({ watch, setValue }: ImageUploadProps) {
                 />
                 <button
                   type="button"
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute right-2 top-2 rounded-lg bg-red-600 p-1.5 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveImage(index);
+                  }}
+                  className="absolute right-2 top-2 rounded-lg bg-red-600/90 backdrop-blur-xs p-1.5 text-white opacity-0 transition group-hover:opacity-100 hover:bg-red-700"
+                  aria-label="Remove image"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={13} />
                 </button>
               </div>
             ))}

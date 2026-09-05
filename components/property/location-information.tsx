@@ -16,69 +16,59 @@ export default function LocationInformation({
   watch,
 }: LocationInformationProps) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-8">
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold">Location</h2>
-
-        <p className="mt-1 text-sm text-gray-500">
-          Help buyers find your property.
+    <section className="rounded-2xl border border-[#e5ddd0] bg-white p-6 sm:p-8 shadow-xs">
+      <div className="mb-6 border-b border-[#f2ece0] pb-4">
+        <h2 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1e1b17]">
+          Location & Geography
+        </h2>
+        <p className="mt-1 text-xs sm:text-sm text-[#7a7268]">
+          Pinpoint coordinates on the interactive map and enter locality address.
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Location Picker with Geocoding */}
         <LocationPicker setValue={setValue} watch={watch} />
 
         {/* Address */}
         <div>
-          <label className="mb-2 block text-sm font-medium">
-            Street Address
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#7a7268]">
+            Street / Neighborhood Address
           </label>
-
           <input
             {...register("address")}
-            placeholder="Sector 150"
-            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-black"
+            placeholder="e.g. Sector 150, Express Highway"
+            className="w-full rounded-xl border border-[#e5ddd0] bg-[#faf7f2]/50 px-4 py-2.5 text-xs sm:text-sm text-[#1e1b17] outline-none transition focus:border-[#b8924a] focus:ring-1 focus:ring-[#b8924a]"
           />
-
           {errors.address && (
-            <p className="mt-2 text-sm text-red-500">
+            <p className="mt-1.5 text-xs text-red-500">
               {errors.address.message}
             </p>
           )}
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           {/* City */}
           <div>
-            <label className="mb-2 block text-sm font-medium">City</label>
-
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#7a7268]">
+              City
+            </label>
             <input
               {...register("city")}
-              placeholder="Noida"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-black"
+              placeholder="e.g. Noida"
+              className="w-full rounded-xl border border-[#e5ddd0] bg-[#faf7f2]/50 px-4 py-2.5 text-xs sm:text-sm text-[#1e1b17] outline-none transition focus:border-[#b8924a] focus:ring-1 focus:ring-[#b8924a]"
             />
           </div>
 
           {/* State */}
           <div>
-            <label className="mb-2 block text-sm font-medium">State</label>
-
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-[#7a7268]">
+              State / Province
+            </label>
             <input
               {...register("state")}
-              placeholder="Uttar Pradesh"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-black"
-            />
-          </div>
-
-          {/* Country */}
-          <div>
-            <label className="mb-2 block text-sm font-medium">Country</label>
-
-            <input
-              {...register("country")}
-              placeholder="India"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-black"
+              placeholder="e.g. Uttar Pradesh"
+              className="w-full rounded-xl border border-[#e5ddd0] bg-[#faf7f2]/50 px-4 py-2.5 text-xs sm:text-sm text-[#1e1b17] outline-none transition focus:border-[#b8924a] focus:ring-1 focus:ring-[#b8924a]"
             />
           </div>
         </div>

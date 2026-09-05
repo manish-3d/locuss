@@ -1,3 +1,10 @@
+import dns from "node:dns";
+
+// Ensure IPv4 resolution takes precedence to prevent Neon AWS pooler IPv6 connection dropouts
+if (typeof dns.setDefaultResultOrder === "function") {
+  dns.setDefaultResultOrder("ipv4first");
+}
+
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as {

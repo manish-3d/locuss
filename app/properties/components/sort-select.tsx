@@ -29,7 +29,6 @@ export default function SortSelect() {
       params.set("sort", newSort);
     }
     
-    // Reset page on sort change
     params.delete("page");
 
     startTransition(() => {
@@ -38,16 +37,16 @@ export default function SortSelect() {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <label htmlFor="sort" className="text-sm font-medium text-gray-700">
-        Sort by:
+    <div className="flex items-center gap-1.5">
+      <label htmlFor="sort" className="text-xs font-medium text-[#7a7268]">
+        Sort:
       </label>
       <select
         id="sort"
         value={currentSort}
         onChange={handleSortChange}
         disabled={isPending}
-        className="rounded-lg border px-3 py-1.5 text-sm outline-none focus:border-black disabled:opacity-50"
+        className="rounded-md border border-[#e5ddd0] bg-white px-2 py-1 text-xs text-[#1e1b17] outline-none transition focus:border-[#b8924a] focus:ring-1 focus:ring-[#b8924a] disabled:opacity-50"
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>

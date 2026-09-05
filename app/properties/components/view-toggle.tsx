@@ -28,29 +28,29 @@ export default function ViewToggle() {
   };
 
   return (
-    <div className="flex items-center rounded-lg border bg-white p-1 shadow-sm">
+    <div className="flex items-center rounded-md border border-[#e5ddd0] bg-[#faf7f2] p-0.5">
       <button
         onClick={() => toggleView("list")}
         disabled={isPending}
-        className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition ${
+        className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition ${
           currentView === "list"
-            ? "bg-gray-100 text-black shadow-sm"
-            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+            ? "bg-white text-[#1e1b17] shadow-xs font-semibold"
+            : "text-[#7a7268] hover:text-[#1e1b17]"
         } disabled:opacity-50`}
       >
-        <LayoutGrid className="h-4 w-4" />
+        <LayoutGrid className="h-3 w-3" />
         List
       </button>
       <button
         onClick={() => toggleView("map")}
         disabled={isPending}
-        className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition ${
+        className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition ${
           currentView === "map"
-            ? "bg-gray-100 text-black shadow-sm"
-            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+            ? "bg-white text-[#1e1b17] shadow-xs font-semibold"
+            : "text-[#7a7268] hover:text-[#1e1b17]"
         } disabled:opacity-50`}
       >
-        <Map className="h-4 w-4" />
+        <Map className="h-3 w-3" />
         Map
       </button>
     </div>

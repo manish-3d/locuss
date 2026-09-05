@@ -58,38 +58,38 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #faf7f2;          /* rich warm ivory */
+  --foreground: #1e1b17;          /* deep warm charcoal */
+  --card: #ffffff;                /* crisp white surface */
+  --card-foreground: #1e1b17;
+  --popover: #ffffff;
+  --popover-foreground: #1e1b17;
+  --primary: #1e1b17;             /* deep charcoal primary */
+  --primary-foreground: #ffffff;
+  --secondary: #f2ece0;           /* warm beige / sand */
+  --secondary-foreground: #1e1b17;
+  --muted: #f2ece0;
+  --muted-foreground: #7a7268;    /* warm taupe */
+  --accent: #f2ece0;
+  --accent-foreground: #1e1b17;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: #e5ddd0;              /* subtle warm beige border */
+  --input: #e5ddd0;
+  --ring: #b8924a;                /* muted warm gold focus ring */
+  --chart-1: #b8924a;
+  --chart-2: #7a7268;
+  --chart-3: #1e1b17;
+  --chart-4: #dfc99a;
+  --chart-5: #f2ece0;
+  --radius: 0.875rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e1b17;
+  --sidebar-primary: #1e1b17;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2ece0;
+  --sidebar-accent-foreground: #1e1b17;
+  --sidebar-border: #e5ddd0;
+  --sidebar-ring: #b8924a;
   /* Homepage premium warm palette */
   --locus-cream: #faf7f2;         /* rich warm ivory */
   --locus-sand: #f2ece0;          /* warm beige / sand */

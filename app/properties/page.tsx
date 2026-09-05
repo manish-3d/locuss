@@ -32,8 +32,7 @@ export default async function PropertiesPage({ searchParams }: Props) {
 
   // Pagination
   const page = parseInt(params.page || "1", 10);
-  const pageSize = parseInt(params.pageSize || "9", 10);
-  // Do not paginate on map view so we see all matching markers
+  const pageSize = parseInt(params.pageSize || "12", 10);
   const skip = isMapView ? undefined : (page - 1) * pageSize;
   const take = isMapView ? undefined : pageSize;
 
@@ -134,34 +133,50 @@ export default async function PropertiesPage({ searchParams }: Props) {
     imageUrl: p.images[0]?.url || null,
   }));
 
+  const listingTypeLabel =
+    params.listingType === "SALE"
+      ? "Properties for Sale"
+      : params.listingType === "RENT"
+      ? "Properties for Rent"
+      : "Explore Properties";
+
   return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <main className="mx-auto w-full max-w-[1536px] 2xl:max-w-[1600px] px-3 sm:px-5 lg:px-6 py-4 sm:py-6">
+      {/* Header section — Compact & Proportional */}
+      <div className="flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between border-b border-[#e5ddd0] pb-3 sm:pb-4">
         <div>
-          <h1 className="text-4xl font-bold">Explore Properties</h1>
-          <p className="mt-2 text-gray-500">
-            Showing {isMapView ? properties.length : `${properties.length} of ${totalCount}`} properties
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#ddd5c5] bg-white/70 px-2 py-0.5 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[#9a8f7e]">
+              <span className="text-[#b8924a]">✦</span> Curated Listings
+            </span>
+            <span className="text-[11px] text-[#7a7268]">
+              • Showing {isMapView ? properties.length : `${properties.length} of ${totalCount}`} verified properties
+            </span>
+          </div>
+          <h1 className="mt-1 font-serif text-xl sm:text-2xl lg:text-[1.85rem] font-bold tracking-tight text-[#1e1b17]">
+            {listingTypeLabel}
+          </h1>
         </div>
-        <div className="flex items-center gap-4">
+
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           {!isMapView && <SortSelect />}
           <ViewToggle />
         </div>
       </div>
 
-      <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-start">
-        {/* Sidebar Filters */}
-        <aside className="w-full lg:w-80 shrink-0">
+      <div className="mt-4 sm:mt-5 flex flex-col gap-3.5 lg:gap-4 lg:flex-row lg:items-start">
+        {/* Sidebar Filters — Sleek & Compact */}
+        <aside className="w-full lg:w-52 xl:w-56 shrink-0">
           <FilterSidebar />
         </aside>
 
-        {/* Content Area */}
-        <div className="flex-1">
+        {/* Content Area — 4 Cards In A Row on Desktop */}
+        <div className="flex-1 min-w-0">
           {properties.length > 0 ? (
             isMapView ? (
               <PropertyMapView properties={mapProperties} />
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
                 {properties.map((property) => (
                   <PropertyCard
                     key={property.id}
@@ -183,13 +198,20 @@ export default async function PropertiesPage({ searchParams }: Props) {
               </div>
             )
           ) : (
-            <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed text-gray-500">
-              <p className="text-lg font-medium">No properties found</p>
-              <p className="text-sm">Try adjusting your filters</p>
+            <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-[#e5ddd0] bg-white p-6 text-center shadow-xs">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f2ece0] text-[#b8924a] mb-2 text-sm">
+                ✦
+              </div>
+              <h3 className="font-serif text-base font-semibold text-[#1e1b17]">
+                No properties matched your criteria
+              </h3>
+              <p className="mt-1 text-xs text-[#7a7268] max-w-sm">
+                Try widening your price range, clearing filters, or exploring nearby locations.
+              </p>
             </div>
           )}
 
-          {/* Pagination (only in list view) */}
+          {/* Pagination */}
           {!isMapView && <Pagination currentPage={page} totalPages={totalPages} />}
         </div>
       </div>

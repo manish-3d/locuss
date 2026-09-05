@@ -16,31 +16,20 @@ export default async function DashboardHeader() {
   });
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[#e5ddd0] pb-6">
       <div>
-        <h1 className="text-4xl font-bold tracking-tight">
-          Welcome back, {session?.user.name} 👋
+        <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#1e1b17]">
+          Welcome back, {session?.user.name}
         </h1>
-
-        <p className="mt-2 text-gray-500">{today}</p>
+        <p className="mt-1 text-xs sm:text-sm text-[#7a7268]">{today}</p>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-
-          <input
-            type="text"
-            placeholder="Search properties..."
-            className="w-72 rounded-xl border bg-white py-3 pl-10 pr-4 outline-none transition focus:border-blue-500"
-          />
-        </div>
-
+      <div className="flex flex-wrap items-center gap-3">
         <Link
           href="/dashboard/properties/new"
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[#1e1b17] px-5 py-2.5 text-xs sm:text-sm font-medium text-white transition-all duration-200 hover:bg-black hover:shadow-md"
         >
-          <Plus className="h-5 w-5" />
+          <Plus size={15} />
           Add Property
         </Link>
       </div>

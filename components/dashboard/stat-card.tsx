@@ -13,25 +13,26 @@ export default function StatCard({
   value,
   icon: Icon,
   description,
-  color = "bg-blue-100 text-blue-600",
 }: StatCardProps) {
   return (
-    <div className="rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="rounded-2xl border border-[#e5ddd0] bg-white p-5 sm:p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-[#b8924a]/60 hover:shadow-md motion-reduce:hover:translate-y-0">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-gray-500">{title}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7a7268]">
+            {title}
+          </p>
 
-          <h2 className="mt-3 text-3xl font-bold">{value}</h2>
+          <h2 className="mt-2 font-serif text-2xl sm:text-3xl font-bold text-[#1e1b17]">
+            {value}
+          </h2>
 
           {description && (
-            <p className="mt-2 text-sm text-gray-400">{description}</p>
+            <p className="mt-1 text-xs text-[#7a7268]">{description}</p>
           )}
         </div>
 
-        <div
-          className={`flex h-12 w-12 items-center justify-center rounded-xl ${color}`}
-        >
-          <Icon className="h-6 w-6" />
+        <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl border border-[#e8e4de] bg-[#faf7f2] text-[#b8924a] shadow-xs">
+          <Icon className="h-5 w-5" />
         </div>
       </div>
     </div>

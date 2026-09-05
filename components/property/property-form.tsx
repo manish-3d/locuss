@@ -81,11 +81,10 @@ export default function PropertyForm({ property }: { property?: any }) {
     });
   }
 
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto max-w-6xl space-y-8"
+      className="mx-auto max-w-5xl space-y-6 sm:space-y-8"
     >
       <BasicInformation register={register} errors={errors} />
 
@@ -99,20 +98,13 @@ export default function PropertyForm({ property }: { property?: any }) {
 
       <ImageUpload watch={watch} setValue={setValue} />
 
-      <div className="flex justify-end gap-4 border-t border-gray-200 pt-8">
-        <button
-          type="button"
-          className="rounded-xl border border-gray-300 px-6 py-3 text-sm font-medium transition hover:bg-gray-100"
-        >
-          Save Draft
-        </button>
-
+      <div className="flex items-center justify-end gap-3 border-t border-[#e5ddd0] pt-6">
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-xl bg-black px-8 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full bg-[#1e1b17] px-8 py-3 text-xs sm:text-sm font-medium text-white transition hover:bg-black hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 shadow-xs"
         >
-          {isPending ? "Publishing..." : "Publish Property"}
+          {isPending ? "Publishing listing..." : "Publish Property"}
         </button>
       </div>
     </form>
