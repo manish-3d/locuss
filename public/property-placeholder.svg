@@ -1,0 +1,8 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#F2ECE0"/>
+  <path d="M0 610L260 390L470 560L720 300L1200 680V800H0V610Z" fill="#E5DDD0"/>
+  <path d="M420 610V420L600 280L780 420V610" stroke="#B8924A" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M350 430L600 210L850 430" stroke="#1E1B17" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="530" y="470" width="140" height="140" rx="8" fill="#FAF7F2" stroke="#1E1B17" stroke-width="8"/>
+  <text x="600" y="710" text-anchor="middle" fill="#7A7268" font-family="Georgia, serif" font-size="34">Locus property</text>
+</svg>

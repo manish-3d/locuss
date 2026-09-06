@@ -138,11 +138,73 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground;
+    min-width: 320px;
+    overflow-x: hidden;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--locus-gold);
+    outline-offset: 2px;
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .locus-touch {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  .locus-scroll-x {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .locus-scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+
+  .safe-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (max-width: 639px) {
+  .locus-property-detail .rounded-3xl,
+  .locus-property-detail .rounded-2xl {
+    border-radius: 1rem;
+  }
+
+  .locus-property-detail .sticky {
+    top: 3.5rem;
+  }
+
+  .locus-property-detail .detail-panel {
+    padding: 1rem;
+  }
+
+  .locus-property-detail .detail-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
