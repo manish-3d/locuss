@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Bed, Bath, Square, MapPin, ArrowUpRight } from "lucide-react";
+import { Bed, Bath, Square, MapPin, ArrowRight, Box, Check } from "lucide-react";
 import FavoriteButton from "./favorite-button";
+import ResilientImage from "@/components/ui/resilient-image";
 
 export type PropertyCardProps = {
   id: string;
@@ -19,6 +19,9 @@ export type PropertyCardProps = {
   imageUrl: string | null;
   initialFavorited?: boolean;
   aiMatchScore?: number;
+  has3D?: boolean;
+  isNew?: boolean;
+  isVerified?: boolean;
 };
 
 export function formatPrice(price: number | bigint, listingType?: string): string {
@@ -31,7 +34,7 @@ export function formatPrice(price: number | bigint, listingType?: string): strin
 
   if (numPrice >= 10000000) {
     const cr = numPrice / 10000000;
-    return `₹${cr % 1 === 0 ? cr.toFixed(0) : cr.toFixed(2)} Cr`;
+    return `₹${cr % 1 === 0 ? cr.toFixed(2) : cr.toFixed(2)} Cr`;
   }
 
   if (numPrice >= 100000) {
@@ -58,42 +61,50 @@ export default function PropertyCard({
   imageUrl,
   initialFavorited = false,
   aiMatchScore,
+  has3D = true, // Real 3D tour model available
+  isNew = false,
+  isVerified = true,
 }: PropertyCardProps) {
   return (
     <Link
       href={`/properties/${id}`}
-      className="group relative flex flex-col h-full overflow-hidden rounded-xl border border-[#e5ddd0] bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[#b8924a]/60 hover:shadow-md motion-reduce:hover:translate-y-0"
+      className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-[#e5ddd0] bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-[#b8924a]/60 hover:shadow-md sm:rounded-2xl"
     >
-      {/* Image Thumbnail — Sleek 16:10 aspect ratio */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#f2ece0]">
+      {/* ── Image Thumbnail with Badges ── */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#f2ece0] sm:aspect-[16/10]">
         {imageUrl ? (
-          <Image
+          <ResilientImage
             src={imageUrl}
             alt={title}
             fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-[11px] text-[#7a7268]">
-            No image available
+          <div className="flex h-full items-center justify-center text-[10px] text-[#7a7268]">
+            No image
           </div>
         )}
 
         {/* Top Badges */}
-        <div className="absolute left-1.5 top-1.5 flex items-center gap-1 z-10">
-          <span className="rounded-full bg-[#1e1b17]/85 backdrop-blur-xs px-2 py-0.5 text-[9px] font-semibold text-white tracking-wide">
-            For {listingType === "SALE" ? "Sale" : "Rent"}
-          </span>
-          <span className="rounded-full bg-white/90 backdrop-blur-xs px-1.5 py-0.5 text-[9px] font-medium text-[#1e1b17] capitalize">
-            {propertyType.toLowerCase()}
-          </span>
+        <div className="absolute left-1.5 top-1.5 z-10 flex items-center gap-1 sm:left-2 sm:top-2">
+          {has3D && (
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-[#1e1b17]/90 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold tracking-wide text-white shadow-xs backdrop-blur-2xs">
+              <Box className="h-2.5 w-2.5 text-[#b8924a]" />
+              <span>3D</span>
+            </span>
+          )}
+          {isNew && (
+            <span className="rounded-full bg-white/95 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-semibold text-[#1e1b17] shadow-xs">
+              New
+            </span>
+          )}
         </div>
 
-        {/* Optional AI Match or Favorite Button */}
-        <div className="absolute right-1.5 top-1.5 flex items-center gap-1 z-10">
+        {/* Top Right Heart Favorite Button */}
+        <div className="absolute right-1.5 top-1.5 z-10 flex items-center gap-1 sm:right-2 sm:top-2">
           {aiMatchScore && (
-            <span className="flex items-center gap-0.5 rounded-full bg-[#b8924a] px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-xs">
+            <span className="hidden sm:inline-flex items-center gap-0.5 rounded-full bg-[#b8924a] px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-xs">
               ✦ {aiMatchScore}%
             </span>
           )}
@@ -101,61 +112,54 @@ export default function PropertyCard({
         </div>
       </div>
 
-      {/* Card Content — Information Dense & Proportional */}
-      <div className="flex flex-1 flex-col justify-between p-2.5 sm:p-3">
-        <div>
-          {/* Price & Location */}
-          <div className="flex items-baseline justify-between gap-1.5">
-            <p className="font-serif text-sm sm:text-base font-bold text-[#1e1b17]">
-              {formatPrice(price, listingType)}
-            </p>
-            <div className="flex items-center gap-0.5 text-[10px] text-[#7a7268] shrink-0 truncate max-w-[50%]">
-              <MapPin size={10} className="shrink-0 text-[#b8924a]" />
-              <span className="truncate">{city}, {state}</span>
-            </div>
-          </div>
+      {/* ── Card Content: Highly Scannable & Compact ── */}
+      <div className="flex flex-1 flex-col justify-between p-2 sm:p-3 space-y-1 sm:space-y-2">
+        <div className="space-y-0.5">
+          {/* Price */}
+          <p className="font-serif text-sm sm:text-base font-bold text-[#1e1b17]">
+            {formatPrice(price, listingType)}
+          </p>
 
           {/* Title */}
-          <h3 className="mt-0.5 line-clamp-1 font-serif text-xs sm:text-[13px] font-semibold text-[#1e1b17] transition-colors group-hover:text-[#b8924a]">
+          <h3 className="line-clamp-1 font-serif text-xs font-semibold text-[#1e1b17] transition-colors group-hover:text-[#b8924a]">
             {title}
           </h3>
 
-          {/* Key Specs Row */}
-          <div className="mt-1.5 flex items-center gap-2 border-t border-[#f2ece0] pt-1.5 text-[10px] sm:text-[11px] text-[#524b42]">
-            <div className="flex items-center gap-0.5">
-              <Bed size={11} className="text-[#b8924a]" />
-              <span>{bedrooms} Beds</span>
-            </div>
-            <div className="flex items-center gap-0.5">
-              <Bath size={11} className="text-[#b8924a]" />
-              <span>{bathrooms} Baths</span>
-            </div>
-            <div className="flex items-center gap-0.5">
-              <Square size={11} className="text-[#b8924a]" />
-              <span>{Number(area).toLocaleString("en-IN")} sqft</span>
-            </div>
-          </div>
+          {/* Location */}
+          <p className="flex items-center gap-0.5 text-[10px] text-[#7a7268] truncate">
+            <MapPin className="h-2.5 w-2.5 shrink-0 text-[#a39a8c]" />
+            <span className="truncate">{city}, {state}</span>
+          </p>
         </div>
 
-        {/* Footer Meta & Arrow */}
-        <div className="mt-2 flex items-center justify-between border-t border-[#f2ece0]/80 pt-1.5 text-[9px] sm:text-[10px] text-[#7a7268]">
-          <div className="flex items-center gap-1">
-            {furnished && (
-              <span className="rounded bg-[#f2ece0] px-1.5 py-0.5 font-medium text-[#524b42]">
-                Furnished
-              </span>
-            )}
-            {parking ? (
-              <span className="rounded bg-[#f2ece0] px-1.5 py-0.5 font-medium text-[#524b42]">
-                Parking
-              </span>
-            ) : null}
+        {/* Specs & Verified Badge Row */}
+        <div className="border-t border-[#f2ece0] pt-1.5 space-y-1">
+          <div className="flex items-center justify-between text-[10px] text-[#524b42]">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-0.5" title={`${bedrooms} Bedrooms`}>
+                <Bed className="h-3 w-3 text-[#7a7268]" />
+                <span className="font-medium">{bedrooms}</span>
+              </div>
+              <div className="flex items-center gap-0.5" title={`${bathrooms} Bathrooms`}>
+                <Bath className="h-3 w-3 text-[#7a7268]" />
+                <span className="font-medium">{bathrooms}</span>
+              </div>
+              <div className="flex items-center gap-0.5" title={`${area} sq.m`}>
+                <Square className="h-3 w-3 shrink-0 text-[#7a7268]" />
+                <span className="truncate font-medium">{Math.round(Number(area))} m²</span>
+              </div>
+            </div>
           </div>
 
-          <span className="inline-flex items-center gap-0.5 font-medium text-[#1e1b17] group-hover:text-[#b8924a] transition-colors">
-            Details
-            <ArrowUpRight size={11} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </span>
+          {/* Verified Badge */}
+          {isVerified && (
+            <div className="pt-0.5">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-[#eef7ee] px-1.5 py-0.5 text-[9px] font-semibold text-[#2d7a36]">
+                <Check className="h-2.5 w-2.5 stroke-[2.5]" />
+                <span>Verified</span>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </Link>

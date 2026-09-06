@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Property, PropertyImage } from "@prisma/client";
-import { MapPin, BedDouble, Bath, Square, Pencil, Trash2, ArrowUpRight } from "lucide-react";
+import { MapPin, BedDouble, Bath, Square, Pencil, Trash2, ArrowUpRight, Box } from "lucide-react";
 import { useTransition } from "react";
 import { deleteProperty } from "@/app/dashboard/properties/actions";
 
@@ -58,6 +58,10 @@ export default function PropertyCard({ property }: Props) {
             <img
               src={firstImageUrl}
               alt={property.title}
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = "/property-placeholder.svg";
+              }}
               className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
             />
           ) : (
@@ -68,10 +72,11 @@ export default function PropertyCard({ property }: Props) {
 
           {/* Badges */}
           <div className="absolute left-2.5 top-2.5 flex items-center gap-1.5 z-10">
-            <span className="rounded-full bg-[#1e1b17]/85 backdrop-blur-xs px-2.5 py-0.5 text-[10px] font-semibold text-white tracking-wide">
-              {property.listingType === "RENT" ? "Rent" : "Sale"}
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#1e1b17]/90 backdrop-blur-xs px-2 py-0.5 text-[9px] font-bold text-white tracking-wide shadow-xs">
+              <Box className="h-2.5 w-2.5 text-[#b8924a]" />
+              <span>3D</span>
             </span>
-            <span className="rounded-full bg-white/90 backdrop-blur-xs px-2 py-0.5 text-[10px] font-medium text-[#1e1b17] capitalize">
+            <span className="rounded-full bg-white/90 backdrop-blur-xs px-2 py-0.5 text-[9px] font-medium text-[#1e1b17] capitalize">
               {property.propertyType.toLowerCase()}
             </span>
           </div>
