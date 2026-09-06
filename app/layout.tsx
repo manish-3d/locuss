@@ -5,6 +5,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 
 import Navbar from "@/components/navbar";
 import Footer from "@/components/layout/footer";
+import MobileBottomNav from "@/components/mobile-bottom-nav";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -33,11 +34,13 @@ export default function RootLayout({
       <body>
         <Navbar />
 
-        {children}
+        <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+          {children}
+          <Footer />
+        </div>
 
-        <Footer />
+        <MobileBottomNav />
       </body>
     </html>
   );
 }
-
