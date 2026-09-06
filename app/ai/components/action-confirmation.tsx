@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import ResilientImage from "@/components/ui/resilient-image";
 import Link from "next/link";
 import { CheckCircle2, Calendar, ArrowRight } from "lucide-react";
 import { PropertyResult, formatPrice } from "./property-result-card";
@@ -81,7 +81,7 @@ export default function ActionConfirmation({
           <div className="mt-2 flex items-center justify-between gap-2.5 rounded-lg border border-[#f2ece0] bg-[#faf7f2] p-1.5 sm:p-2">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div className="relative h-10 w-12 shrink-0 overflow-hidden rounded bg-[#f2ece0]">
-                <Image
+                <ResilientImage
                   src={property.image || fallbackImage}
                   alt={property.title}
                   fill
@@ -133,7 +133,7 @@ export default function ActionConfirmation({
         <div className="mt-2 flex items-center justify-between gap-2.5 rounded-lg border border-[#f2ece0] bg-[#faf7f2] p-1.5 sm:p-2">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="relative h-10 w-12 shrink-0 overflow-hidden rounded bg-[#f2ece0]">
-              <Image
+              <ResilientImage
                 src={property.image || fallbackImage}
                 alt={property.title}
                 fill

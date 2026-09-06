@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ResilientImage from "@/components/ui/resilient-image";
 import { BedDouble, Bath, Maximize2, Heart, ArrowRight, MapPin, Sparkles } from "lucide-react";
 import { toggleFavorite } from "@/lib/actions/interactions";
 
@@ -83,7 +83,7 @@ export default function PropertyResultCard({
     <div className="group relative flex flex-col sm:flex-row items-stretch overflow-hidden rounded-xl border border-[#e5ddd0] bg-white transition-all duration-200 hover:border-[#b8924a]/70 hover:shadow-xs">
       {/* Thumbnail Section */}
       <div className="relative h-28 sm:h-auto sm:w-28 md:w-32 shrink-0 overflow-hidden bg-[#f2ece0]">
-        <Image
+        <ResilientImage
           src={property.image || fallbackImage}
           alt={property.title}
           fill

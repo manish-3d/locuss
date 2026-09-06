@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
+import ResilientImage from "@/components/ui/resilient-image";
 import Link from "next/link";
 import { Check, Heart, ArrowRight, Sparkles, MapPin, Maximize2, BedDouble, Bath } from "lucide-react";
 import { PropertyResult, formatPrice } from "./property-result-card";
@@ -47,7 +47,7 @@ export default function RecommendationCard({
     <div className="overflow-hidden rounded-xl border border-[#b8924a]/40 bg-white shadow-xs transition-all hover:shadow-sm">
       {/* Featured Header Image */}
       <div className="relative h-28 sm:h-36 w-full overflow-hidden bg-[#f2ece0]">
-        <Image
+        <ResilientImage
           src={property.image || fallbackImage}
           alt={property.title}
           fill

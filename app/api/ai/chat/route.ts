@@ -27,6 +27,14 @@ import {
   getRelevantBrokerMemory,
 } from "@/lib/ai/broker-memory";
 import type { WorkflowStep } from "@/app/ai/components/workflow-progress";
+import {
+  getPropertyRooms,
+  getRoomDetails,
+  goToRoom,
+  startPropertyTour,
+  getCurrentSpatialContext,
+} from "@/lib/ai/spatial-tools";
+import { getPropertyGraph } from "@/lib/spatial";
 
 const google = createGoogleGenerativeAI({
   apiKey:
@@ -44,6 +52,8 @@ const messageSchema = z.object({
 const requestSchema = z.object({
   messages: z.array(messageSchema).min(1),
   preferences: buyerPreferencesSchema.optional(),
+  currentRoomId: z.string().optional(),
+  spatialPropertyId: z.string().optional(),
 });
 
 const searchPropertiesSchema = z.object({
@@ -208,6 +218,29 @@ const scheduleViewingSchema = z.object({
   note: z.string().trim().max(1000).optional(),
 });
 
+const getPropertyRoomsSchema = z.object({
+  propertyId: z.string().optional().describe("Property ID, defaults to the current 3D property."),
+});
+
+const getRoomDetailsSchema = z.object({
+  roomId: z.string().describe("Semantic ID or name of the room to inspect, e.g. 'living-room', 'kitchen', 'balcony', 'master-bedroom'."),
+  propertyId: z.string().optional().describe("Property ID, defaults to the current 3D property."),
+});
+
+const goToRoomSchema = z.object({
+  roomId: z.string().describe("Semantic room ID or name to navigate camera to, e.g. 'balcony', 'kitchen', 'living-room', 'master-bedroom'."),
+  propertyId: z.string().optional().describe("Property ID, defaults to current 3D property."),
+});
+
+const startPropertyTourSchema = z.object({
+  propertyId: z.string().optional().describe("Property ID, defaults to current 3D property."),
+});
+
+const getCurrentSpatialContextSchema = z.object({
+  currentRoomId: z.string().optional().describe("Current room ID the user is located in."),
+  propertyId: z.string().optional().describe("Property ID, defaults to current 3D property."),
+});
+
 type PropertySearchResult = {
   id: string;
   title: string;
@@ -273,7 +306,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const { messages, preferences: incomingPreferences } = parsedBody.data;
+    const {
+      messages,
+      preferences: incomingPreferences,
+      currentRoomId,
+      spatialPropertyId,
+    } = parsedBody.data;
 
     const sessionUser = await getBrokerUser();
     const persistentMemory = sessionUser?.id ? await loadPersistentMemory(sessionUser.id) : null;
@@ -502,6 +540,57 @@ This action requires the user to be signed in. Convert the user's requested date
       },
     });
 
+    const getPropertyRoomsTool = tool({
+      description: `Get a list of all rooms and spatial zones in the 3D property digital twin.
+Use this tool when the user asks about the layout, how many rooms there are, or wants to explore the property structure.`,
+      inputSchema: getPropertyRoomsSchema,
+      execute: async ({ propertyId }) => {
+        return await getPropertyRooms(propertyId || spatialPropertyId);
+      },
+    });
+
+    const getRoomDetailsTool = tool({
+      description: `Get comprehensive details about a specific room in the 3D property (description, connected rooms, type).
+Use this tool when the user asks what is in a room, what is connected to it, or asks for details about a space.`,
+      inputSchema: getRoomDetailsSchema,
+      execute: async ({ roomId, propertyId }) => {
+        return await getRoomDetails(roomId, propertyId || spatialPropertyId);
+      },
+    });
+
+    const goToRoomTool = tool({
+      description: `Navigate the 3D camera to a specific room in the property.
+Use this tool whenever the user asks to go somewhere, visit a room, see a specific space, or move the camera.
+Examples: "take me to the balcony", "go to the kitchen", "let's look at the master bedroom".
+Do NOT use raw coordinates. Specify only the semantic room ID or name.`,
+      inputSchema: goToRoomSchema,
+      execute: async ({ roomId, propertyId }) => {
+        return await goToRoom(roomId, propertyId || spatialPropertyId);
+      },
+    });
+
+    const startPropertyTourTool = tool({
+      description: `Start an autonomous guided 3D tour through the property.
+Use this tool whenever the user requests a tour, walkthrough, or wants to see the whole house.
+Examples: "give me a quick tour", "show me around the property", "start the tour".`,
+      inputSchema: startPropertyTourSchema,
+      execute: async ({ propertyId }) => {
+        return await startPropertyTour(propertyId || spatialPropertyId);
+      },
+    });
+
+    const getCurrentSpatialContextTool = tool({
+      description: `Get the current spatial position of the user inside the 3D property, including the active room, connected adjacent rooms, and all available destinations.
+Use this tool when the user asks "where am I?", "what's next to me?", "what rooms can I go to from here?", or relative spatial questions.`,
+      inputSchema: getCurrentSpatialContextSchema,
+      execute: async (args) => {
+        return await getCurrentSpatialContext(
+          args.currentRoomId || currentRoomId || null,
+          args.propertyId || spatialPropertyId
+        );
+      },
+    });
+
     const latestPropertyContext = [...messages]
       .reverse()
       .find(
@@ -529,6 +618,27 @@ PERSONALIZATION & CONVERSATIONAL REASONING:
 - When the user asks "Why?", explain concisely using actual property data and how it fits their active preferences. Never invent scores or property facts.
 - When the user says "Find me something better", infer what "better" means from their stated preferences (e.g. more space, better price, parking); if genuinely ambiguous, ask a concise clarification instead of guessing.
 - Update buyer preferences whenever the user gives new requirements using updateBuyerPreferences. The latest explicit user preference overrides conflicting previous ones.`;
+
+    const activeSpatialGraph = getPropertyGraph(spatialPropertyId);
+    const spatialPromptContext = activeSpatialGraph
+      ? `\n\nSPATIAL 3D INTELLIGENCE (Stage 12):
+You have direct spatial awareness of the 3D property digital twin ("${activeSpatialGraph.propertyName}").
+The user is currently viewing this 3D property in an interactive viewport.
+Current room / camera viewpoint: ${currentRoomId || activeSpatialGraph.defaultRoom}.
+Available rooms in this property: ${Object.keys(activeSpatialGraph.rooms).join(", ")}.
+
+SPATIAL ACTION RULES:
+- When the user asks to navigate, visit, look at, or go to any room (e.g. "take me to the balcony", "show me the kitchen", "go to master bedroom"):
+  ALWAYS call the goToRoom tool with the target roomId.
+  In your final text, describe the space they have arrived at based on the room description.
+- When the user asks for a tour or walkthrough (e.g. "give me a quick tour", "show me around"):
+  ALWAYS call the startPropertyTour tool.
+  In your final text, introduce the property tour route.
+- When the user asks about room connections, layout, or spatial context (e.g. "what is next to the kitchen?", "what rooms connect to the living room?", "what's behind me?"):
+  Call getRoomDetails or getCurrentSpatialContext to verify the exact connected rooms.
+  NEVER fabricate spatial facts or room names.
+- Reason ONLY in semantic room names and IDs, NEVER in raw 3D coordinates.`
+      : "";
 
     const result = await generateText({
       model: google("gemini-3.6-flash"),
@@ -685,7 +795,7 @@ Side-effect tools (favoriteProperty, createInquiry, contactPropertyOwner, schedu
 - Explain errors such as sign-in requirements or unavailable listings clearly and briefly.
 - A schedule result with status REQUESTED is only a request sent to the owner. Never describe it as confirmed unless the tool explicitly returns CONFIRMED.
 ${propertyContext}
-${preferencesContext}${relevantMemoryContext ? `\n\n${relevantMemoryContext}` : ""}`,
+${preferencesContext}${relevantMemoryContext ? `\n\n${relevantMemoryContext}` : ""}${spatialPromptContext}`,
 
       messages: messages.map(({ role, content }) => ({ role, content })),
 
@@ -699,16 +809,41 @@ ${preferencesContext}${relevantMemoryContext ? `\n\n${relevantMemoryContext}` : 
         contactPropertyOwner: contactPropertyOwnerTool,
         scheduleViewing: scheduleViewingTool,
         updateBuyerPreferences: updateBuyerPreferencesTool,
+        getPropertyRooms: getPropertyRoomsTool,
+        getRoomDetails: getRoomDetailsTool,
+        goToRoom: goToRoomTool,
+        startPropertyTour: startPropertyTourTool,
+        getCurrentSpatialContext: getCurrentSpatialContextTool,
       },
 
       stopWhen: stepCountIs(6),
     });
 
     const properties: PropertySearchResult[] = [];
+    let spatialAction:
+      | { type: "goToRoom"; roomId: string; roomName: string; description?: string }
+      | { type: "startTour"; route?: string[] }
+      | null = null;
 
     for (const step of result.steps) {
       for (const toolResult of step.toolResults) {
         const output = toolResult.output;
+
+        if (toolResult.toolName === "goToRoom" && output && !(output as any).error) {
+          const o = output as { roomId: string; roomName: string; description?: string };
+          spatialAction = {
+            type: "goToRoom",
+            roomId: o.roomId,
+            roomName: o.roomName,
+            description: o.description,
+          };
+        } else if (toolResult.toolName === "startPropertyTour" && output && !(output as any).error) {
+          const o = output as { route?: Array<{ id: string }> };
+          spatialAction = {
+            type: "startTour",
+            route: o.route?.map((r) => r.id),
+          };
+        }
 
         if (toolResult.toolName === "searchProperties" && Array.isArray(output)) {
           properties.push(...(output as PropertySearchResult[]));
@@ -781,6 +916,7 @@ ${preferencesContext}${relevantMemoryContext ? `\n\n${relevantMemoryContext}` : 
 
     const toolUsed =
       uniqueProperties.length > 0 ||
+      spatialAction !== null ||
       result.steps.some((step) =>
         step.toolResults.some((toolResult) =>
           [
@@ -793,6 +929,11 @@ ${preferencesContext}${relevantMemoryContext ? `\n\n${relevantMemoryContext}` : 
             "contactPropertyOwner",
             "scheduleViewing",
             "updateBuyerPreferences",
+            "getPropertyRooms",
+            "getRoomDetails",
+            "goToRoom",
+            "startPropertyTour",
+            "getCurrentSpatialContext",
           ].includes(toolResult.toolName),
         ),
       );
@@ -898,6 +1039,36 @@ ${preferencesContext}${relevantMemoryContext ? `\n\n${relevantMemoryContext}` : 
             });
             break;
           }
+          case "goToRoom": {
+            const roomName = (output as Record<string, unknown> | undefined)?.roomName || "room";
+            workflowSteps.push({
+              stage: "Navigating",
+              label: `Navigating to ${roomName}`,
+              status: isError ? "failed" : "completed",
+              summary: isError ? String(output?.error) : `Camera positioned at ${roomName}`,
+            });
+            break;
+          }
+          case "startPropertyTour": {
+            workflowSteps.push({
+              stage: "Touring",
+              label: "Initiating autonomous tour",
+              status: isError ? "failed" : "completed",
+              summary: isError ? String(output?.error) : "Tour route activated",
+            });
+            break;
+          }
+          case "getRoomDetails":
+          case "getPropertyRooms":
+          case "getCurrentSpatialContext": {
+            workflowSteps.push({
+              stage: "Spatial",
+              label: "Analyzing spatial layout",
+              status: isError ? "failed" : "completed",
+              summary: isError ? String(output?.error) : "Spatial context loaded",
+            });
+            break;
+          }
         }
       }
     }
@@ -948,6 +1119,7 @@ ${preferencesContext}${relevantMemoryContext ? `\n\n${relevantMemoryContext}` : 
       preferences: activePreferences,
       workflowSteps,
       workflowState,
+      spatialAction,
     });
   } catch (error) {
     console.error("AI_CHAT_ERROR:", error);
