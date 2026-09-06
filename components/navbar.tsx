@@ -15,13 +15,13 @@ export default async function Navbar() {
   return (
     <NavbarVisibility>
       <header className="sticky top-0 z-50 border-b border-[#e5ddd0] bg-[#faf7f2]/95 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
           {/* Left — Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#e8e4de] bg-white transition-colors group-hover:border-[#b8924a]">
-              <Home className="h-4.5 w-4.5 text-[#1e1b17]" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8e4de] bg-white transition-colors group-hover:border-[#b8924a] sm:h-9 sm:w-9">
+              <Home className="h-4 w-4 text-[#1e1b17] sm:h-4.5 sm:w-4.5" />
             </div>
-            <span className="text-xl font-semibold tracking-tight text-[#1e1b17] font-sans">
+            <span className="text-lg font-semibold tracking-tight text-[#1e1b17] font-sans sm:text-xl">
               Locus
             </span>
           </Link>

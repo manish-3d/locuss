@@ -1,9 +1,26 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Home } from "lucide-react";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Hide footer completely on mobile interactive screens so bottom-nav is never obstructed
+  const isAppScreen =
+    pathname.startsWith("/ai") ||
+    pathname.startsWith("/spatial") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/properties") ||
+    pathname.startsWith("/notifications");
+
   return (
-    <footer className="border-t border-[#e5ddd0] bg-[#faf7f2] text-[#7a7268] text-xs sm:text-sm">
+    <footer
+      className={`border-t border-[#e5ddd0] bg-[#faf7f2] text-[#7a7268] text-xs sm:text-sm ${
+        isAppScreen ? "hidden md:block" : ""
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16">
         <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand Column */}
