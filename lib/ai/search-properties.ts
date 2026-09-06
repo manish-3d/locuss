@@ -1,4 +1,16 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+
+export type SearchPropertyResult = Prisma.PropertyGetPayload<{
+  include: {
+    images: {
+      orderBy: {
+        order: "asc";
+      };
+      take: 1;
+    };
+  };
+}>;
 
 export type PropertySearchFilters = {
   city?: string;
@@ -19,7 +31,9 @@ export type PropertySearchFilters = {
   limit?: number;
 };
 
-export async function searchProperties(filters: PropertySearchFilters) {
+export async function searchProperties(
+  filters: PropertySearchFilters
+): Promise<SearchPropertyResult[]> {
   const limit = Math.min(Math.max(filters.limit ?? 5, 1), 20);
 
   const properties = await prisma.property.findMany({

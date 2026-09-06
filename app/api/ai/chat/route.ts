@@ -2,7 +2,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, stepCountIs, tool } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { searchProperties } from "@/lib/ai/search-properties";
+import { searchProperties, type SearchPropertyResult } from "@/lib/ai/search-properties";
 import { getPropertyDetails } from "@/lib/ai/get-property-details";
 import { compareProperties } from "@/lib/ai/compare-properties";
 import { recommendProperties } from "@/lib/ai/rank-properties";
@@ -395,7 +395,7 @@ IMPORTANT:
 
         const properties = await searchProperties(filters);
 
-        return properties.map((property) => ({
+        return properties.map((property: SearchPropertyResult) => ({
           id: property.id,
           title: property.title,
           description: property.description,
