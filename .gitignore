@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+# large 3d models
+public/models/modern_coastal_hillside_villa.glb
