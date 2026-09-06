@@ -31,15 +31,23 @@ export interface SpatialIntelligenceExtension {
   getSpatialMetadata(propertyId: string): Promise<PropertySpatialMetadata | null>;
 }
 
+import { getPropertyGraph } from "@/lib/spatial";
+
 /**
- * Default pass-through stub for current Stage 10 & 11 runtime.
- * Guarantees zero runtime overhead and zero 3D dependencies.
+ * Spatial Extension implementation for Stage 12 3D Property Intelligence.
+ * Checks whether a 3D digital twin exists for the requested property.
  */
 export const defaultSpatialExtension: SpatialIntelligenceExtension = {
-  async isAvailable() {
-    return false;
+  async isAvailable(propertyId: string) {
+    return Boolean(getPropertyGraph(propertyId));
   },
-  async getSpatialMetadata() {
-    return null;
+  async getSpatialMetadata(propertyId: string) {
+    const graph = getPropertyGraph(propertyId);
+    if (!graph) return null;
+    return {
+      hasSpatialModel: true,
+      spatialModelId: graph.propertyId,
+    };
   },
 };
+
