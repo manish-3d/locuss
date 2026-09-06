@@ -28,11 +28,11 @@ export default function ViewToggle() {
   };
 
   return (
-    <div className="flex items-center rounded-md border border-[#e5ddd0] bg-[#faf7f2] p-0.5">
+    <div className="flex flex-1 items-center rounded-md border border-[#e5ddd0] bg-[#faf7f2] p-0.5 sm:flex-none">
       <button
         onClick={() => toggleView("list")}
         disabled={isPending}
-        className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition ${
+        className={`locus-touch flex flex-1 items-center justify-center gap-1 rounded px-2 py-1 text-xs font-medium transition sm:flex-none ${
           currentView === "list"
             ? "bg-white text-[#1e1b17] shadow-xs font-semibold"
             : "text-[#7a7268] hover:text-[#1e1b17]"
@@ -44,7 +44,7 @@ export default function ViewToggle() {
       <button
         onClick={() => toggleView("map")}
         disabled={isPending}
-        className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition ${
+        className={`locus-touch flex flex-1 items-center justify-center gap-1 rounded px-2 py-1 text-xs font-medium transition sm:flex-none ${
           currentView === "map"
             ? "bg-white text-[#1e1b17] shadow-xs font-semibold"
             : "text-[#7a7268] hover:text-[#1e1b17]"
