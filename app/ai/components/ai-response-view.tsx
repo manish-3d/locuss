@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Sparkles, Map, ArrowUpDown, SlidersHorizontal } from "lucide-react";
 import SafeMarkdown from "./safe-markdown";
 import PropertyResultCard, { PropertyResult } from "./property-result-card";
+import PropertyCarouselCard from "./property-carousel-card";
 import LocusTake from "./locus-take";
 import ComparisonView from "./comparison-view";
 import RecommendationCard from "./recommendation-card";
@@ -269,21 +271,47 @@ export default function AiResponseView({
         </div>
       )}
 
-      {/* F. Standard Search Property Cards */}
+      {/* F. Standard Search Property Cards — Horizontal Carousel matching Design Board */}
       {!isViewingAction &&
         !isFavoriteAction &&
         !isInquiryAction &&
         !isComparison &&
         !isRecommendation &&
         hasProperties && (
-          <div className="space-y-2">
-            {properties.map((property, idx) => (
-              <PropertyResultCard
-                key={property.id}
-                property={property}
-                featuredBadge={idx === 0 && properties.length > 1 ? "Top Match" : undefined}
-              />
-            ))}
+          <div className="pt-1 space-y-2.5">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x -mx-1 px-1">
+              {properties.map((property) => (
+                <PropertyCarouselCard key={property.id} property={property} />
+              ))}
+            </div>
+
+            {/* Quick Action Pills matching Right Screen of design board */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              <Link
+                href="/properties?view=map"
+                className="locus-touch inline-flex items-center gap-1.5 rounded-full border border-[#e5ddd0] bg-white px-3 py-1.5 text-xs font-medium text-[#1e1b17] shadow-2xs hover:border-[#b8924a] shrink-0"
+              >
+                <Map size={13} className="text-[#b8924a]" />
+                <span>Show on Map</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => onFollowUpClick?.("Sort these properties by price")}
+                className="locus-touch inline-flex items-center gap-1.5 rounded-full border border-[#e5ddd0] bg-white px-3 py-1.5 text-xs font-medium text-[#1e1b17] shadow-2xs hover:border-[#b8924a] shrink-0"
+              >
+                <ArrowUpDown size={13} className="text-[#b8924a]" />
+                <span>Sort by Price</span>
+              </button>
+
+              <Link
+                href="/properties"
+                className="locus-touch inline-flex items-center gap-1.5 rounded-full border border-[#e5ddd0] bg-white px-3 py-1.5 text-xs font-medium text-[#1e1b17] shadow-2xs hover:border-[#b8924a] shrink-0"
+              >
+                <SlidersHorizontal size={13} className="text-[#b8924a]" />
+                <span>More Filters</span>
+              </Link>
+            </div>
           </div>
         )}
 
