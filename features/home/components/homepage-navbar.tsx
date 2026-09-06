@@ -12,13 +12,13 @@ export default async function HomepageNavbar() {
   });
 
   return (
-    <nav className="flex items-center justify-between px-8 py-5 border-b border-[#e5ddd0]">
+    <nav className="flex items-center justify-between border-b border-[#e5ddd0] px-4 py-3 sm:px-8 sm:py-5">
       {/* Left — Logo */}
       <Link href="/" className="flex items-center gap-2.5 group">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#e8e4de] bg-white transition-colors group-hover:border-locus-gold">
-          <Home className="h-4.5 w-4.5 text-locus-charcoal" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e8e4de] bg-white transition-colors group-hover:border-locus-gold sm:h-9 sm:w-9">
+          <Home className="h-4 w-4 text-locus-charcoal sm:h-4.5 sm:w-4.5" />
         </div>
-        <span className="text-xl font-semibold tracking-tight text-locus-charcoal font-sans">
+        <span className="text-lg font-semibold tracking-tight text-locus-charcoal font-sans sm:text-xl">
           Locus
         </span>
       </Link>

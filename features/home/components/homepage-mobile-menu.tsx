@@ -18,21 +18,22 @@ export default function HomepageMobileMenu({ isAuthenticated, userName }: Props)
     <div className="md:hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#e8e4de] text-locus-charcoal transition-colors hover:border-locus-gold"
+        className="locus-touch flex h-10 w-10 items-center justify-center rounded-xl border border-[#e8e4de] text-locus-charcoal transition-colors hover:border-locus-gold"
         aria-label={open ? "Close menu" : "Open menu"}
+        aria-expanded={open}
       >
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 border-b border-[#e8e4de] bg-locus-cream px-6 py-6">
-          <div className="flex flex-col gap-4">
+        <div className="fixed inset-x-3 top-[4.25rem] z-50 max-h-[calc(100svh-5.25rem)] overflow-y-auto rounded-2xl border border-[#e8e4de] bg-locus-cream px-4 py-4 shadow-xl">
+          <div className="flex flex-col gap-2">
             {navigationLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="text-base font-medium text-locus-charcoal transition-colors hover:text-locus-gold"
+                className="locus-touch flex items-center rounded-xl px-3 text-sm font-medium text-locus-charcoal transition-colors hover:bg-white hover:text-locus-gold"
               >
                 {link.title}
               </Link>

@@ -52,24 +52,24 @@ export default function SearchBar() {
     "h-full w-full appearance-none bg-transparent py-2 pl-3 pr-6 text-xs font-medium text-locus-charcoal outline-none cursor-pointer transition-colors placeholder:text-locus-warm-gray focus:text-black";
 
   return (
-    <div className="w-full rounded-[1rem] border border-[#e5ddd0] bg-white p-1.5 shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
+    <div className="w-full rounded-[0.85rem] border border-[#e5ddd0] bg-white p-1 shadow-[0_2px_24px_rgba(0,0,0,0.06)] sm:rounded-[1rem] sm:p-1.5">
       <form
         onSubmit={handleSearch}
-        className="flex flex-col gap-2 md:flex-row md:items-center md:gap-0"
+        className="grid grid-cols-2 gap-1.5 md:flex md:items-center md:gap-0"
       >
         {/* Location */}
-        <div className="relative flex-[2] min-w-0">
+        <div className="relative col-span-2 min-w-0 md:flex-[2]">
           <MapPin className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-locus-warm-gray" />
           <input
             value={city}
             onChange={(e) => setCity(e.target.value)}
             placeholder="Search city, locality, or area"
-            className="h-10 w-full rounded-[0.75rem] bg-transparent py-2 pl-9 pr-3 text-xs font-medium text-[#1e1b17] outline-none transition-colors placeholder:text-[#9a8f7e] focus:bg-[#f8f4ee] md:rounded-none md:rounded-l-[0.75rem] md:border-r md:border-[#e5ddd0]"
+            className="h-10 w-full rounded-[0.7rem] bg-[#faf7f2]/60 py-2 pl-9 pr-3 text-xs font-medium text-[#1e1b17] outline-none transition-colors placeholder:text-[#9a8f7e] focus:bg-[#f8f4ee] md:rounded-none md:rounded-l-[0.75rem] md:bg-transparent md:border-r md:border-[#e5ddd0]"
           />
         </div>
 
         {/* Intent */}
-        <div className="relative flex-1 min-w-0 md:border-r md:border-[#e5ddd0]">
+        <div className="relative min-w-0 md:flex-1 md:border-r md:border-[#e5ddd0]">
           <select
             value={listingType}
             onChange={(e) => setListingType(e.target.value)}
@@ -91,7 +91,7 @@ export default function SearchBar() {
         </div>
 
         {/* Property Type */}
-        <div className="relative flex-1 min-w-0 md:border-r md:border-[#e5ddd0]">
+        <div className="relative min-w-0 md:flex-1 md:border-r md:border-[#e5ddd0]">
           <select
             value={propertyType}
             onChange={(e) => setPropertyType(e.target.value)}
@@ -117,7 +117,7 @@ export default function SearchBar() {
         </div>
 
         {/* Budget */}
-        <div className="relative flex-1 min-w-0 md:border-r md:border-[#e5ddd0]">
+        <div className="relative min-w-0 md:flex-1 md:border-r md:border-[#e5ddd0]">
           <select
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
@@ -143,7 +143,7 @@ export default function SearchBar() {
         {/* Search Button */}
         <button
           type="submit"
-          className="flex h-10 items-center justify-center gap-1.5 rounded-[0.75rem] bg-[#1e1b17] px-6 text-[0.7rem] uppercase tracking-wider font-semibold text-white transition-all duration-300 hover:bg-black hover:shadow-lg md:ml-1"
+          className="col-span-2 flex h-10 items-center justify-center gap-1.5 rounded-[0.7rem] bg-[#1e1b17] px-6 text-[0.68rem] uppercase tracking-wider font-semibold text-white transition-all duration-300 hover:bg-black hover:shadow-lg md:ml-1 md:flex-1 md:rounded-[0.75rem]"
         >
           <Search className="h-3.5 w-3.5" />
           <span>Search</span>

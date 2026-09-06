@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import ResilientImage from "@/components/ui/resilient-image";
 import { Bath, BedDouble, MapPin, ArrowUpRight } from "lucide-react";
 
 type PropertyCardProps = {
@@ -27,7 +27,7 @@ export default function PropertyCard({
       className="group relative flex flex-col h-full overflow-hidden rounded-xl border border-[#e5ddd0] bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[#b8924a]/60 hover:shadow-md motion-reduce:hover:translate-y-0"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#f2ece0]">
-        <Image
+          <ResilientImage
           src={image}
           alt={title}
           fill

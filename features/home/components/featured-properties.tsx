@@ -7,13 +7,13 @@ export default async function FeaturedProperties() {
   const properties = await getFeaturedProperties();
 
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 border-t border-[#e5ddd0]">
-      <div className="mb-10 sm:mb-14 text-center max-w-2xl mx-auto">
+    <section className="mx-auto max-w-7xl overflow-hidden border-t border-[#e5ddd0] px-3 py-10 sm:px-6 sm:py-24">
+      <div className="mx-auto mb-7 max-w-2xl text-center sm:mb-14">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ddd5c5] bg-white/70 px-3.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[#9a8f7e] mb-3">
           <span className="text-[#b8924a]">✦</span> Curated Portfolio
         </span>
 
-        <h2 className="font-serif text-3xl sm:text-4xl lg:text-[2.6rem] font-bold text-[#1e1b17] tracking-tight">
+        <h2 className="font-serif text-2xl font-bold tracking-tight text-[#1e1b17] sm:text-4xl lg:text-[2.6rem]">
           Featured Residences
         </h2>
 
@@ -40,7 +40,7 @@ export default async function FeaturedProperties() {
         </div>
       ) : (
         <>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="locus-scroll-x grid grid-flow-col auto-cols-[82%] gap-3 overflow-x-auto snap-x snap-mandatory pb-2 sm:grid-flow-row sm:auto-cols-auto sm:grid-cols-2 sm:gap-5 sm:overflow-visible lg:grid-cols-3">
             {properties.map((property) => (
               <PropertyCard
                 key={property.id}
