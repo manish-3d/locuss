@@ -43,7 +43,7 @@ export class ModelErrorBoundary extends Component<Props, State> {
             <p className="mt-1 max-w-sm text-xs text-[#7a7268] leading-relaxed">
               The 3D property model could not be loaded. Ensure{" "}
               <code className="rounded bg-[#f2ece0] px-1 py-0.5 text-[#1e1b17]">
-                public/models/property-demo.glb
+                public/models/modern_coastal_hillside_villa.glb
               </code>{" "}
               exists.
             </p>
