@@ -54,6 +54,7 @@ export default function AiBrokerPage() {
   const [preferences, setPreferences] = useState<BuyerPreferences | undefined>(undefined);
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -78,8 +79,13 @@ export default function AiBrokerPage() {
     autoSpeak: true,
   });
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior,
+      });
+    }
   };
 
   useEffect(() => {
@@ -197,7 +203,7 @@ export default function AiBrokerPage() {
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
 
   return (
-    <main className="mx-auto flex h-[calc(100svh-5rem-env(safe-area-inset-bottom))] w-full max-w-md flex-col bg-[#faf7f2] sm:max-w-2xl lg:max-w-4xl">
+    <main className="mx-auto flex h-[calc(100svh-5rem-env(safe-area-inset-bottom))] md:h-[calc(100vh-4rem)] w-full max-w-md flex-col bg-[#faf7f2] sm:max-w-2xl lg:max-w-4xl overflow-hidden">
       {/* ── TOP APP HEADER BAR (Matches Design Board) ── */}
       <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-[#e5ddd0] bg-[#faf7f2]/95 px-4 backdrop-blur-md">
         {messages.length === 0 ? (
@@ -271,7 +277,10 @@ export default function AiBrokerPage() {
       </header>
 
       {/* ── SCROLLABLE MAIN CONTENT ── */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-3.5 py-3 sm:px-6">
+      <div
+        ref={messagesContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto px-3.5 py-3 sm:px-6 overscroll-contain"
+      >
         {messages.length === 0 ? (
           /* ── 1. WELCOME / EMPTY STATE (Left Screen of Design Board) ── */
           <div className="space-y-4 pb-24 animate-in fade-in duration-300">

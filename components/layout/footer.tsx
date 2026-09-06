@@ -7,9 +7,13 @@ import { Home } from "lucide-react";
 export default function Footer() {
   const pathname = usePathname();
 
+  // Dedicated conversational AI workspace never renders marketing footer
+  if (pathname.startsWith("/ai")) {
+    return null;
+  }
+
   // Hide footer completely on mobile interactive screens so bottom-nav is never obstructed
   const isAppScreen =
-    pathname.startsWith("/ai") ||
     pathname.startsWith("/spatial") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/properties") ||

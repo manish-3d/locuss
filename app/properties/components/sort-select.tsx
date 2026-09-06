@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import LuxuryDropdown from "@/components/ui/luxury-dropdown";
 
 const sortOptions = [
   { label: "Newest", value: "newest" },
@@ -15,12 +16,12 @@ export default function SortSelect() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false);
 
   const currentSort = searchParams.get("sort") || "newest";
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSort = e.target.value;
+  const handleSortChange = (newSort: string) => {
     const params = new URLSearchParams(searchParams.toString());
     
     if (newSort === "newest") {
@@ -38,22 +39,21 @@ export default function SortSelect() {
 
   return (
     <div className="flex flex-1 items-center gap-1.5 sm:flex-none">
-      <label htmlFor="sort" className="text-xs font-medium text-[#7a7268]">
+      <span className="text-xs font-medium text-[#7a7268]">
         Sort:
-      </label>
-      <select
-        id="sort"
-        value={currentSort}
-        onChange={handleSortChange}
-        disabled={isPending}
-        className="h-11 min-w-0 flex-1 rounded-md border border-[#e5ddd0] bg-white px-2 py-1 text-xs text-[#1e1b17] outline-none transition focus:border-[#b8924a] focus:ring-1 focus:ring-[#b8924a] disabled:opacity-50 sm:h-auto sm:flex-none"
-      >
-        {sortOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      </span>
+      <div className="min-w-[160px]">
+        <LuxuryDropdown
+          id="sort-dropdown"
+          label="Sort By"
+          value={currentSort}
+          options={sortOptions}
+          onChange={handleSortChange}
+          isOpen={isOpen}
+          onToggle={() => setIsOpen((prev) => !prev)}
+          onClose={() => setIsOpen(false)}
+        />
+      </div>
     </div>
   );
 }
