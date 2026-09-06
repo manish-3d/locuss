@@ -97,13 +97,13 @@ export default function FilterSidebar() {
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return (
-    <div className="rounded-xl border border-[#e5ddd0] bg-white p-3.5 sm:p-4 shadow-xs lg:sticky lg:top-20">
+    <div className="rounded-xl border border-[#e5ddd0] bg-white p-2.5 shadow-xs sm:p-4 lg:sticky lg:top-20">
       {/* Mobile Toggle Bar */}
       <div className="flex items-center justify-between lg:hidden">
         <button
           type="button"
           onClick={() => setMobileExpanded(!mobileExpanded)}
-          className="flex items-center gap-1.5 font-serif text-sm font-semibold text-[#1e1b17]"
+          className="locus-touch flex items-center gap-1.5 rounded-lg px-2 font-serif text-sm font-semibold text-[#1e1b17]"
         >
           <SlidersHorizontal size={14} className="text-[#b8924a]" />
           <span>Filters</span>
@@ -119,7 +119,7 @@ export default function FilterSidebar() {
           <button
             type="button"
             onClick={clearFilters}
-            className="flex items-center gap-1 text-[11px] text-[#7a7268] hover:text-[#1e1b17]"
+            className="locus-touch flex items-center gap-1 text-[11px] text-[#7a7268] hover:text-[#1e1b17]"
           >
             <RotateCcw size={11} />
             Reset
