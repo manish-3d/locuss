@@ -76,7 +76,7 @@ export default function PropertyMapView({ properties }: PropertyMapViewProps) {
       el.style.cursor = "pointer";
 
       const popupHtml = `
-        <div style="padding: 0; min-width: 200px; max-width: 240px;">
+        <div style="padding: 0; min-width: 160px; max-width: 220px;">
           ${
             property.imageUrl
               ? `<img src="${property.imageUrl}" style="width: 100%; height: 120px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px;" alt="${property.title}" />`
@@ -154,7 +154,7 @@ export default function PropertyMapView({ properties }: PropertyMapViewProps) {
 
   if (error) {
     return (
-      <div className="flex h-[600px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 text-red-500">
+      <div className="flex h-[360px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 px-4 text-center text-red-500 sm:h-[600px]">
         <AlertTriangle className="mb-2 h-8 w-8" />
         <p className="font-medium">{error}</p>
       </div>
@@ -164,7 +164,7 @@ export default function PropertyMapView({ properties }: PropertyMapViewProps) {
   return (
     <div
       ref={mapContainer}
-      className="h-[600px] w-full overflow-hidden rounded-2xl border bg-gray-100 shadow-inner"
+      className="h-[360px] w-full overflow-hidden rounded-2xl border bg-gray-100 shadow-inner sm:h-[600px]"
     />
   );
 }

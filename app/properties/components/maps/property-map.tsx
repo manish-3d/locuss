@@ -104,7 +104,7 @@ export default function PropertyMap({
 
   if (!isValidCoords) {
     return (
-      <div className={`flex h-[400px] w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 ${className || ""}`}>
+      <div className={`flex h-[300px] w-full items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-4 text-center sm:h-[400px] ${className || ""}`}>
         <div className="flex flex-col items-center gap-2 text-gray-400">
           <MapPin className="h-8 w-8" />
           <p className="text-sm font-medium">Location coordinates not available</p>
@@ -115,7 +115,7 @@ export default function PropertyMap({
 
   if (error) {
     return (
-      <div className={`flex h-[400px] w-full items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 ${className || ""}`}>
+      <div className={`flex h-[300px] w-full items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 px-4 text-center sm:h-[400px] ${className || ""}`}>
         <div className="flex flex-col items-center gap-2 text-red-400">
           <AlertTriangle className="h-8 w-8" />
           <p className="text-sm font-medium">{error}</p>
@@ -128,7 +128,7 @@ export default function PropertyMap({
     <div className={`relative ${className || ""}`}>
       <div
         ref={mapContainer}
-        className="h-[400px] w-full overflow-hidden rounded-2xl bg-gray-100"
+        className="h-[300px] w-full overflow-hidden rounded-2xl bg-gray-100 sm:h-[400px]"
       />
     </div>
   );
